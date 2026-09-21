@@ -26,7 +26,7 @@ export function CropModal({
       autoCropArea: 0.9, // start with a sensible box the user can adjust
       background: false,
       responsive: true,
-      checkOrientation: true, // respect iPhone EXIF rotation
+      checkOrientation: false, // image is already upright (EXIF baked in) — avoids double-rotation
       zoomable: true,
     });
     cropperRef.current = cropper;

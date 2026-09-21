@@ -93,6 +93,8 @@ function detailFields(item: Item): { label: string; value: string }[] {
   if (item.type === "game") {
     if (item.publisher) f.push({ label: "Publisher", value: item.publisher });
     if (item.platform) f.push({ label: "Platform", value: item.platform });
+    if (!item.publisher && !item.platform && item.creator)
+      f.push({ label: "Developer", value: item.creator });
   } else if (item.creator) {
     f.push({ label: item.type === "book" ? "Author" : "Director", value: item.creator });
   }

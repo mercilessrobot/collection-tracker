@@ -177,7 +177,7 @@ export function Collection({ session }: { session: Session }) {
 function ItemCard({ item, onOpen }: { item: Item; onOpen: (i: Item) => void }) {
   const subtitle =
     item.type === "game"
-      ? [item.publisher, item.platform].filter(Boolean).join(" · ")
+      ? [item.publisher, item.platform].filter(Boolean).join(" · ") || item.creator
       : item.creator;
   return (
     <article className="item-card clickable" onClick={() => onOpen(item)}>

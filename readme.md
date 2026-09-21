@@ -87,9 +87,10 @@ you add locally shows up on the live site too.
   - **Books** work out of the box — the barcode *is* the ISBN.
   - **Movies/games** need the optional `barcode` Edge Function (below), since a
     disc/case UPC has to be translated to a title first.
-- **Photo covers:** take a picture of an item (or pick one from your library)
-  to use as its cover — auto-shrunk and stored in Supabase Storage (needs the
-  one-time setup below).
+- **Photo covers:** take a picture of an item (or pick one from your library),
+  **crop it to just the item** in a built-in editor (drag, rotate, aspect
+  presets), and use it as the cover — auto-shrunk and stored in Supabase Storage
+  (needs the one-time setup below).
 - Installable on your phone's home screen (PWA manifest).
 
 ## Optional: enable movie & game auto-lookup

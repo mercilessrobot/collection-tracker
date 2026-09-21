@@ -1,4 +1,4 @@
-import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
+import { useState, useRef, lazy, Suspense, type FormEvent, type ChangeEvent } from "react";
 import type { Item, ItemDraft, ItemStatus, ItemType } from "../types";
 import { STATUS_LABELS, CREATOR_LABELS, TYPE_LABELS } from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
@@ -10,8 +10,9 @@ import { searchGames, resolveGame } from "../lib/rawg";
 import { upcToTitle } from "../lib/barcode";
 import { hasTmdb, hasRawg } from "../config";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
-import { processImageFile } from "../lib/image";
 import { uploadCover } from "../lib/storage";
+
+const CropModal = lazy(() => import("./CropModal").then((m) => ({ default: m.CropModal })));
 
 const STATUSES: ItemStatus[] = ["owned", "wishlist", "in_progress", "done"];
 
@@ -40,6 +41,7 @@ export function ItemForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const [isbn, setIsbn] = useState("");
   const [lookupBusy, setLookupBusy] = useState(false);
@@ -63,14 +65,20 @@ export function ItemForm({
     }
   }
 
-  async function handlePhoto(e: ChangeEvent<HTMLInputElement>) {
+  function handlePhoto(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = ""; // allow re-picking the same file
     if (!file) return;
+    setUploadError(null);
+    setCropSrc(URL.createObjectURL(file));
+  }
+
+  async function handleCropDone(blob: Blob) {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
     setUploading(true);
     setUploadError(null);
     try {
-      const blob = await processImageFile(file);
       const url = await uploadCover(blob);
       setCoverUrl(url);
     } catch (err) {
@@ -78,6 +86,11 @@ export function ItemForm({
     } finally {
       setUploading(false);
     }
+  }
+
+  function handleCropCancel() {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
   }
 
   // Fill the form fields from a picked search result (movies / games).
@@ -110,6 +123,7 @@ export function ItemForm({
   const singular = TYPE_LABELS[type].replace(/s$/, "");
 
   return (
+    <>
     <div className="modal-backdrop" onClick={onCancel}>
       <form className="card modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
         <h2>
@@ -282,5 +296,11 @@ export function ItemForm({
         </div>
       </form>
     </div>
+    {cropSrc && (
+      <Suspense fallback={null}>
+        <CropModal src={cropSrc} onCancel={handleCropCancel} onDone={handleCropDone} />
+      </Suspense>
+    )}
+    </>
   );
 }

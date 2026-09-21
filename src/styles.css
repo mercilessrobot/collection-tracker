@@ -475,3 +475,34 @@ label {
 .url-fallback {
   font-size: 0.8rem;
 }
+
+.crop-backdrop {
+  z-index: 30;
+}
+.crop-modal {
+  width: min(520px, 100%);
+}
+.crop-stage {
+  max-height: 55vh;
+  max-height: 55dvh;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+}
+.crop-stage img {
+  display: block;
+  max-width: 100%;
+}
+.crop-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+}
+.crop-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 0 0.3rem;
+}

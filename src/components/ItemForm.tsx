@@ -26,7 +26,7 @@ export function ItemForm({
   type: ItemType;
   initial: Item | null;
   onCancel: () => void;
-  onSave: (draft: ItemDraft, id?: string) => void | Promise<void>;
+  onSave: (draft: ItemDraft, id?: string) => Promise<string | null>;
 }) {
   useLockBodyScroll();
   const [title, setTitle] = useState(initial?.title ?? "");
@@ -41,6 +41,7 @@ export function ItemForm({
   const [coverUrl, setCoverUrl] = useState(initial?.cover_url ?? "");
   const [identifier, setIdentifier] = useState(initial?.identifier ?? "");
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -116,6 +117,7 @@ export function ItemForm({
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
+    setSaveError(null);
     const draft: ItemDraft = {
       type,
       title: title.trim(),
@@ -130,7 +132,8 @@ export function ItemForm({
       cover_url: coverUrl.trim() || null,
       identifier: identifier.trim() || null,
     };
-    await onSave(draft, initial?.id);
+    const err = await onSave(draft, initial?.id);
+    if (err) setSaveError(err);
     setSaving(false);
   }
 
@@ -327,6 +330,7 @@ export function ItemForm({
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
         </label>
 
+        {saveError && <p className="error">{saveError}</p>}
         <div className="modal-actions">
           <button type="button" className="ghost" onClick={onCancel}>
             Cancel

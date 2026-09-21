@@ -51,20 +51,21 @@ export function Collection({ session }: { session: Session }) {
       );
   }, [items, activeType, search]);
 
-  async function handleSave(draft: ItemDraft, id?: string) {
+  async function handleSave(draft: ItemDraft, id?: string): Promise<string | null> {
     if (id) {
       const { error } = await supabase
         .from("items")
         .update({ ...draft, updated_at: new Date().toISOString() })
         .eq("id", id);
-      if (error) return setError(error.message);
+      if (error) return error.message;
     } else {
       const { error } = await supabase.from("items").insert(draft);
-      if (error) return setError(error.message);
+      if (error) return error.message;
     }
     setShowForm(false);
     setEditing(null);
     await loadItems();
+    return null;
   }
 
   async function handleDelete(item: Item): Promise<boolean> {

@@ -4,6 +4,7 @@ import { supabase } from "../supabase";
 import type { Item, ItemDraft, ItemType } from "../types";
 import { TYPE_LABELS, STATUS_LABELS } from "../types";
 import { ItemForm } from "./ItemForm";
+import { ItemDetail } from "./ItemDetail";
 
 const TYPES: ItemType[] = ["game", "movie", "book"];
 
@@ -15,6 +16,7 @@ export function Collection({ session }: { session: Session }) {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Item | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [viewing, setViewing] = useState<Item | null>(null);
 
   async function loadItems() {
     setLoading(true);
@@ -65,11 +67,15 @@ export function Collection({ session }: { session: Session }) {
     await loadItems();
   }
 
-  async function handleDelete(item: Item) {
-    if (!confirm(`Delete "${item.title}"?`)) return;
+  async function handleDelete(item: Item): Promise<boolean> {
+    if (!confirm(`Delete "${item.title}"?`)) return false;
     const { error } = await supabase.from("items").delete().eq("id", item.id);
-    if (error) return setError(error.message);
+    if (error) {
+      setError(error.message);
+      return false;
+    }
     await loadItems();
+    return true;
   }
 
   function startAdd() {
@@ -134,7 +140,7 @@ export function Collection({ session }: { session: Session }) {
           </p>
         ) : (
           visible.map((item) => (
-            <ItemCard key={item.id} item={item} onEdit={startEdit} onDelete={handleDelete} />
+            <ItemCard key={item.id} item={item} onOpen={setViewing} />
           ))
         )}
       </main>
@@ -150,21 +156,31 @@ export function Collection({ session }: { session: Session }) {
           onSave={handleSave}
         />
       )}
+
+      {viewing && (
+        <ItemDetail
+          item={viewing}
+          onClose={() => setViewing(null)}
+          onEdit={(it) => {
+            setViewing(null);
+            startEdit(it);
+          }}
+          onDelete={async (it) => {
+            if (await handleDelete(it)) setViewing(null);
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function ItemCard({
-  item,
-  onEdit,
-  onDelete,
-}: {
-  item: Item;
-  onEdit: (i: Item) => void;
-  onDelete: (i: Item) => void;
-}) {
+function ItemCard({ item, onOpen }: { item: Item; onOpen: (i: Item) => void }) {
+  const subtitle =
+    item.type === "game"
+      ? [item.publisher, item.platform].filter(Boolean).join(" · ")
+      : item.creator;
   return (
-    <article className="item-card">
+    <article className="item-card clickable" onClick={() => onOpen(item)}>
       <div className="cover">
         {item.cover_url ? (
           <img src={item.cover_url} alt="" loading="lazy" />
@@ -174,22 +190,14 @@ function ItemCard({
       </div>
       <div className="item-body">
         <h3 className="item-title">{item.title}</h3>
-        {item.creator && <p className="item-sub">{item.creator}</p>}
+        {subtitle && <p className="item-sub">{subtitle}</p>}
         <p className="item-meta">
           {item.year ?? ""}
           {item.year && " · "}
           <span className={`status status-${item.status}`}>{STATUS_LABELS[item.status]}</span>
           {item.rating ? <span className="rating"> · {"★".repeat(item.rating)}</span> : null}
+          {item.type === "movie" && item.format ? <span> · {item.format}</span> : null}
         </p>
-        {item.notes && <p className="item-notes">{item.notes}</p>}
-        <div className="item-actions">
-          <button className="ghost small" onClick={() => onEdit(item)}>
-            Edit
-          </button>
-          <button className="ghost small danger" onClick={() => onDelete(item)}>
-            Delete
-          </button>
-        </div>
       </div>
     </article>
   );

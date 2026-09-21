@@ -8,7 +8,10 @@ export interface Item {
   user_id: string;
   type: ItemType;
   title: string;
-  creator: string | null; // author / director / developer
+  creator: string | null; // author (book) / director (movie)
+  publisher: string | null; // game
+  platform: string | null; // game
+  format: string | null; // movie: DVD / VHS / Blu-Ray / 4K Blu-Ray
   year: number | null;
   status: ItemStatus;
   rating: number | null; // 0-5
@@ -22,7 +25,18 @@ export interface Item {
 // Fields the user can edit in the form.
 export type ItemDraft = Pick<
   Item,
-  "type" | "title" | "creator" | "year" | "status" | "rating" | "notes" | "cover_url" | "identifier"
+  | "type"
+  | "title"
+  | "creator"
+  | "publisher"
+  | "platform"
+  | "format"
+  | "year"
+  | "status"
+  | "rating"
+  | "notes"
+  | "cover_url"
+  | "identifier"
 >;
 
 export const TYPE_LABELS: Record<ItemType, string> = {
@@ -38,8 +52,12 @@ export const STATUS_LABELS: Record<ItemStatus, string> = {
   done: "Finished",
 };
 
+// Label for the `creator` field (used by books and movies; games use
+// Publisher + Platform instead).
 export const CREATOR_LABELS: Record<ItemType, string> = {
-  game: "Developer / platform",
+  game: "Developer",
   movie: "Director / studio",
   book: "Author",
 };
+
+export const MOVIE_FORMATS = ["DVD", "VHS", "Blu-Ray", "4K Blu-Ray"] as const;

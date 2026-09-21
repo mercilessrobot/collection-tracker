@@ -11,21 +11,32 @@ export async function searchGames(query: string): Promise<LookupResult[]> {
   const results = (json.results ?? []) as RawgGame[];
   return results.map((g) => ({
     title: g.name,
-    // Fallback to platforms; developer name is filled in on pick (resolveGame).
-    creator: platformNames(g),
+    creator: null,
     year: parseYear(g.released),
     cover_url: g.background_image ?? null,
     sourceId: String(g.id),
+    // Platforms are in the search result; the publisher needs the detail call.
+    platform: platformNames(g),
+    publisher: null,
   }));
 }
 
-// Second call once the user picks a result: fetch the developer.
+// Second call once the user picks a result: fetch publisher + platform.
 export async function resolveGame(result: LookupResult): Promise<LookupResult> {
   try {
-    const url = `${BASE}/games/${result.sourceId}?key=${RAWG_API_KEY}`;
-    const json = (await request(url)) as RawgGame;
-    const devs = (json.developers ?? []).map((d) => d.name);
-    return { ...result, creator: devs.length ? devs.slice(0, 2).join(", ") : result.creator };
+    const json = (await request(`${BASE}/games/${result.sourceId}?key=${RAWG_API_KEY}`)) as RawgGame;
+    const publishers = (json.publishers ?? []).map((p) => p.name);
+    const developers = (json.developers ?? []).map((d) => d.name);
+    const platforms = (json.platforms ?? []).map((p) => p.platform.name);
+    return {
+      ...result,
+      publisher: publishers.length
+        ? publishers.slice(0, 2).join(", ")
+        : developers.length
+          ? developers.slice(0, 2).join(", ")
+          : (result.publisher ?? null),
+      platform: platforms.length ? platforms.slice(0, 4).join(", ") : (result.platform ?? null),
+    };
   } catch {
     return result;
   }
@@ -57,4 +68,5 @@ interface RawgGame {
   background_image?: string | null;
   platforms?: { platform: { name: string } }[];
   developers?: { name: string }[];
+  publishers?: { name: string }[];
 }

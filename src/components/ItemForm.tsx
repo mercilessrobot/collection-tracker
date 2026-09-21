@@ -1,6 +1,6 @@
 import { useState, useRef, lazy, Suspense, type FormEvent, type ChangeEvent } from "react";
 import type { Item, ItemDraft, ItemStatus, ItemType } from "../types";
-import { STATUS_LABELS, CREATOR_LABELS, TYPE_LABELS } from "../types";
+import { STATUS_LABELS, CREATOR_LABELS, TYPE_LABELS, MOVIE_FORMATS } from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
 import { LookupBox } from "./LookupBox";
 import { ScanButton } from "./ScanButton";
@@ -30,6 +30,9 @@ export function ItemForm({
   useLockBodyScroll();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [creator, setCreator] = useState(initial?.creator ?? "");
+  const [publisher, setPublisher] = useState(initial?.publisher ?? "");
+  const [platform, setPlatform] = useState(initial?.platform ?? "");
+  const [format, setFormat] = useState(initial?.format ?? "");
   const [year, setYear] = useState(initial?.year?.toString() ?? "");
   const [status, setStatus] = useState<ItemStatus>(initial?.status ?? "owned");
   const [rating, setRating] = useState(initial?.rating ?? 0);
@@ -97,6 +100,8 @@ export function ItemForm({
   function applyResult(r: LookupResult) {
     setTitle(r.title);
     if (r.creator) setCreator(r.creator);
+    if (r.publisher) setPublisher(r.publisher);
+    if (r.platform) setPlatform(r.platform);
     if (r.year) setYear(String(r.year));
     if (r.cover_url) setCoverUrl(r.cover_url);
     if (r.sourceId) setIdentifier(r.sourceId);
@@ -109,6 +114,9 @@ export function ItemForm({
       type,
       title: title.trim(),
       creator: creator.trim() || null,
+      publisher: publisher.trim() || null,
+      platform: platform.trim() || null,
+      format: format.trim() || null,
       year: year ? Number(year) : null,
       status,
       rating: rating || null,
@@ -199,10 +207,37 @@ export function ItemForm({
           <input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </label>
 
-        <label>
-          {CREATOR_LABELS[type]}
-          <input value={creator} onChange={(e) => setCreator(e.target.value)} />
-        </label>
+        {type === "game" ? (
+          <div className="row">
+            <label>
+              Publisher
+              <input value={publisher} onChange={(e) => setPublisher(e.target.value)} />
+            </label>
+            <label>
+              Platform
+              <input value={platform} onChange={(e) => setPlatform(e.target.value)} />
+            </label>
+          </div>
+        ) : (
+          <label>
+            {CREATOR_LABELS[type]}
+            <input value={creator} onChange={(e) => setCreator(e.target.value)} />
+          </label>
+        )}
+
+        {type === "movie" && (
+          <label>
+            Format
+            <select value={format} onChange={(e) => setFormat(e.target.value)}>
+              <option value="">—</option>
+              {MOVIE_FORMATS.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <div className="row">
           <label>

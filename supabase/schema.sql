@@ -25,6 +25,11 @@ create table if not exists public.items (
 
 create index if not exists items_user_type_idx on public.items (user_id, type);
 
+-- Type-specific fields (added after the initial schema):
+alter table public.items add column if not exists publisher text; -- game
+alter table public.items add column if not exists platform text;  -- game
+alter table public.items add column if not exists format text;    -- movie (DVD/VHS/Blu-Ray/4K Blu-Ray)
+
 -- Row Level Security: every row is private to the user who created it.
 alter table public.items enable row level security;
 

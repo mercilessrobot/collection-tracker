@@ -9,6 +9,7 @@ import { searchMovies, resolveMovie } from "../lib/tmdb";
 import { searchGames, resolveGame } from "../lib/rawg";
 import { upcToTitle } from "../lib/barcode";
 import { hasTmdb, hasRawg } from "../config";
+import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 
 const STATUSES: ItemStatus[] = ["owned", "wishlist", "in_progress", "done"];
 
@@ -23,6 +24,7 @@ export function ItemForm({
   onCancel: () => void;
   onSave: (draft: ItemDraft, id?: string) => void | Promise<void>;
 }) {
+  useLockBodyScroll();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [creator, setCreator] = useState(initial?.creator ?? "");
   const [year, setYear] = useState(initial?.year?.toString() ?? "");
@@ -157,7 +159,7 @@ export function ItemForm({
 
         <label>
           Title
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required autoFocus />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </label>
 
         <label>

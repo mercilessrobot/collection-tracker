@@ -83,6 +83,10 @@ you add locally shows up on the live site too.
   (via the free, keyless Open Library API).
 - **Movies:** search by title to auto-fill director, year, and poster (TMDB).
 - **Games:** search by title to auto-fill developer, year, and cover (RAWG).
+- **Barcode scanning** with your camera (📷 button on the add form):
+  - **Books** work out of the box — the barcode *is* the ISBN.
+  - **Movies/games** need the optional `barcode` Edge Function (below), since a
+    disc/case UPC has to be translated to a title first.
 - Installable on your phone's home screen (PWA manifest).
 
 ## Optional: enable movie & game auto-lookup
@@ -104,6 +108,38 @@ just rotate the key.
 > Why TMDB + RAWG (not IGDB)? Both allow direct calls from the browser, so no
 > backend is needed. IGDB blocks browser requests and needs a secret, which
 > would require a server-side proxy (e.g. a Supabase Edge Function).
+
+## Optional: barcode scanning for movies & games
+
+Book scanning needs nothing extra. **Movie/game** scanning needs a tiny Supabase
+Edge Function (`supabase/functions/barcode/index.ts`) that translates a scanned
+UPC into a product title (browsers can't call UPC databases directly). Deploy it
+once:
+
+**Easiest — from the Supabase dashboard**
+
+1. Open your project → **Edge Functions** (left sidebar) → **Deploy a new
+   function** → **Via Editor**.
+2. Name it exactly **`barcode`**.
+3. Replace the sample code with the contents of
+   [`supabase/functions/barcode/index.ts`](supabase/functions/barcode/index.ts)
+   and click **Deploy**.
+
+That's it — no secret needed (it uses UPCitemdb's free trial tier, ~100
+lookups/day). For higher limits, add a `UPCITEMDB_KEY` secret and it switches to
+the paid endpoint automatically.
+
+**Or — from the CLI**
+
+```bash
+npx supabase login
+npx supabase link --project-ref rxssixlirkffgsimzuej
+npx supabase functions deploy barcode
+```
+
+> Heads up: UPC databases have patchy coverage for discs/games and return noisy
+> titles, so movie/game scanning is best-effort — if it misses, the title search
+> box right there is the reliable fallback. Book scanning (ISBN) is rock-solid.
 
 ## Ideas for later
 

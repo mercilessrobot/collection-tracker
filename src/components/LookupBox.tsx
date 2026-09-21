@@ -1,37 +1,62 @@
 import { useState } from "react";
 import type { LookupResult } from "../lib/lookup";
+import { ScanButton } from "./ScanButton";
 
 // A "search a provider, pick a result to auto-fill" box.
-// Used for movies (TMDB) and games (RAWG).
+// Used for movies (TMDB) and games (RAWG). If `resolveScan` is given, a camera
+// scan button appears: a scanned barcode is turned into a search term.
 export function LookupBox({
   label,
   placeholder,
   search,
   resolve,
   onPick,
+  resolveScan,
 }: {
   label: string;
   placeholder: string;
   search: (q: string) => Promise<LookupResult[]>;
   resolve?: (r: LookupResult) => Promise<LookupResult>;
   onPick: (r: LookupResult) => void;
+  resolveScan?: (code: string) => Promise<string | null>;
 }) {
   const [q, setQ] = useState("");
   const [results, setResults] = useState<LookupResult[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function runSearch() {
-    if (!q.trim()) return;
+  async function runSearch(query?: string) {
+    const term = (query ?? q).trim();
+    if (!term) return;
     setBusy(true);
     setError(null);
     setResults(null);
     try {
-      const r = await search(q.trim());
+      const r = await search(term);
       setResults(r);
       if (r.length === 0) setError("No matches found.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Search failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleScan(code: string) {
+    if (!resolveScan) return;
+    setBusy(true);
+    setError(null);
+    setResults(null);
+    try {
+      const title = await resolveScan(code);
+      if (!title) {
+        setError("Couldn't identify that barcode — try typing the title instead.");
+        return;
+      }
+      setQ(title);
+      await runSearch(title);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Barcode lookup failed.");
     } finally {
       setBusy(false);
     }
@@ -66,9 +91,15 @@ export function LookupBox({
             }}
             placeholder={placeholder}
           />
-          <button type="button" className="ghost" onClick={runSearch} disabled={busy || !q.trim()}>
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => runSearch()}
+            disabled={busy || !q.trim()}
+          >
             {busy ? "…" : "Search"}
           </button>
+          {resolveScan && <ScanButton onDetected={handleScan} />}
         </div>
       </label>
 

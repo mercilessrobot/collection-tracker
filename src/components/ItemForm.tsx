@@ -3,9 +3,11 @@ import type { Item, ItemDraft, ItemStatus, ItemType } from "../types";
 import { STATUS_LABELS, CREATOR_LABELS, TYPE_LABELS } from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
 import { LookupBox } from "./LookupBox";
+import { ScanButton } from "./ScanButton";
 import type { LookupResult } from "../lib/lookup";
 import { searchMovies, resolveMovie } from "../lib/tmdb";
 import { searchGames, resolveGame } from "../lib/rawg";
+import { upcToTitle } from "../lib/barcode";
 import { hasTmdb, hasRawg } from "../config";
 
 const STATUSES: ItemStatus[] = ["owned", "wishlist", "in_progress", "done"];
@@ -35,16 +37,17 @@ export function ItemForm({
   const [lookupBusy, setLookupBusy] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
-  async function handleLookup() {
+  async function handleLookup(code?: string) {
+    const value = code ?? isbn;
     setLookupBusy(true);
     setLookupError(null);
     try {
-      const result = await lookupIsbn(isbn);
+      const result = await lookupIsbn(value);
       if (result.title) setTitle(result.title);
       if (result.creator) setCreator(result.creator);
       if (result.year) setYear(String(result.year));
       if (result.cover_url) setCoverUrl(result.cover_url);
-      setIdentifier(isbn.replace(/[^0-9Xx]/g, ""));
+      setIdentifier(value.replace(/[^0-9Xx]/g, ""));
     } catch (err) {
       setLookupError(err instanceof Error ? err.message : "Lookup failed.");
     } finally {
@@ -99,9 +102,21 @@ export function ItemForm({
                   placeholder="9780…"
                   inputMode="numeric"
                 />
-                <button type="button" className="ghost" onClick={handleLookup} disabled={lookupBusy}>
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => handleLookup()}
+                  disabled={lookupBusy}
+                >
                   {lookupBusy ? "…" : "Fill in"}
                 </button>
+                <ScanButton
+                  onDetected={(code) => {
+                    setIsbn(code);
+                    handleLookup(code);
+                  }}
+                  title="Scan book barcode"
+                />
               </div>
             </label>
             {lookupError && <p className="error">{lookupError}</p>}
@@ -116,6 +131,7 @@ export function ItemForm({
               search={searchMovies}
               resolve={resolveMovie}
               onPick={applyResult}
+              resolveScan={upcToTitle}
             />
           ) : (
             <p className="muted lookup-hint">
@@ -131,6 +147,7 @@ export function ItemForm({
               search={searchGames}
               resolve={resolveGame}
               onPick={applyResult}
+              resolveScan={upcToTitle}
             />
           ) : (
             <p className="muted lookup-hint">

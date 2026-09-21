@@ -1,5 +1,6 @@
-// Keyless book lookup via the Open Library API (no API key required).
-// https://openlibrary.org/dev/docs/api/books
+// Keyless book lookup via the Open Library Search API (no API key required,
+// CORS-enabled). We use search.json because the older /api/books endpoint now
+// returns 404. https://openlibrary.org/dev/docs/api/search
 
 export interface BookLookupResult {
   title: string;
@@ -14,37 +15,34 @@ export async function lookupIsbn(rawIsbn: string): Promise<BookLookupResult> {
     throw new Error("That doesn't look like a 10- or 13-digit ISBN.");
   }
 
-  const url = `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`;
+  const url = `https://openlibrary.org/search.json?isbn=${isbn}&fields=title,author_name,first_publish_year,cover_i&limit=1`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Open Library request failed (${res.status}).`);
   }
 
-  const data = (await res.json()) as Record<string, OpenLibraryBook>;
-  const book = data[`ISBN:${isbn}`];
-  if (!book) {
+  const data = (await res.json()) as OpenLibrarySearch;
+  const doc = data.docs?.[0];
+  if (!doc) {
     throw new Error("No book found for that ISBN.");
   }
 
-  const year = book.publish_date ? parseYear(book.publish_date) : null;
-  const authors = book.authors?.map((a) => a.name).filter(Boolean) ?? [];
-
+  const authors = [...new Set(doc.author_name ?? [])];
   return {
-    title: book.title ?? "",
+    title: doc.title ?? "",
     creator: authors.length ? authors.join(", ") : null,
-    year,
-    cover_url: book.cover?.medium ?? book.cover?.large ?? book.cover?.small ?? null,
+    year: doc.first_publish_year ?? null,
+    cover_url: doc.cover_i
+      ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
+      : null,
   };
 }
 
-function parseYear(publishDate: string): number | null {
-  const match = publishDate.match(/\d{4}/);
-  return match ? Number(match[0]) : null;
-}
-
-interface OpenLibraryBook {
-  title?: string;
-  publish_date?: string;
-  authors?: { name: string }[];
-  cover?: { small?: string; medium?: string; large?: string };
+interface OpenLibrarySearch {
+  docs?: {
+    title?: string;
+    author_name?: string[];
+    first_publish_year?: number;
+    cover_i?: number;
+  }[];
 }

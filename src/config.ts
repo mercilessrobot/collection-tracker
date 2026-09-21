@@ -12,10 +12,10 @@
 // ---------------------------------------------------------------------------
 
 export const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL ?? "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE";
+  import.meta.env.VITE_SUPABASE_URL ?? "https://rxssixlirkffgsimzuej.supabase.co";
 
 export const SUPABASE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ?? "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+  import.meta.env.VITE_SUPABASE_ANON_KEY ?? "sb_publishable_wmutiihmanDE3LMWyyPh5Q_euHp0GyK";
 
 export const isConfigured =
   !SUPABASE_URL.startsWith("PASTE_") && !SUPABASE_PUBLISHABLE_KEY.startsWith("PASTE_");

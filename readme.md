@@ -87,6 +87,9 @@ you add locally shows up on the live site too.
   - **Books** work out of the box — the barcode *is* the ISBN.
   - **Movies/games** need the optional `barcode` Edge Function (below), since a
     disc/case UPC has to be translated to a title first.
+- **Photo covers:** take a picture of an item (or pick one from your library)
+  to use as its cover — auto-shrunk and stored in Supabase Storage (needs the
+  one-time setup below).
 - Installable on your phone's home screen (PWA manifest).
 
 ## Optional: enable movie & game auto-lookup
@@ -140,6 +143,20 @@ npx supabase functions deploy barcode
 > Heads up: UPC databases have patchy coverage for discs/games and return noisy
 > titles, so movie/game scanning is best-effort — if it misses, the title search
 > box right there is the reliable fallback. Book scanning (ISBN) is rock-solid.
+
+## Optional: enable photo covers
+
+To use the **📷 Photo** button (take/upload your own cover images), create the
+storage bucket once:
+
+1. Supabase dashboard → **SQL Editor → New query**.
+2. Paste the contents of [`supabase/storage.sql`](supabase/storage.sql) and
+   click **Run**.
+
+That creates a public `covers` bucket and locks writes to your logged-in
+account. Photos are auto-resized to a small JPEG before upload, so they load
+fast. (Public bucket = anyone with an image's URL can view it, which is fine for
+covers; only you can add or change them.)
 
 ## Ideas for later
 

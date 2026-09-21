@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useRef, type FormEvent, type ChangeEvent } from "react";
 import type { Item, ItemDraft, ItemStatus, ItemType } from "../types";
 import { STATUS_LABELS, CREATOR_LABELS, TYPE_LABELS } from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
@@ -10,6 +10,8 @@ import { searchGames, resolveGame } from "../lib/rawg";
 import { upcToTitle } from "../lib/barcode";
 import { hasTmdb, hasRawg } from "../config";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
+import { processImageFile } from "../lib/image";
+import { uploadCover } from "../lib/storage";
 
 const STATUSES: ItemStatus[] = ["owned", "wishlist", "in_progress", "done"];
 
@@ -35,6 +37,10 @@ export function ItemForm({
   const [identifier, setIdentifier] = useState(initial?.identifier ?? "");
   const [saving, setSaving] = useState(false);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   const [isbn, setIsbn] = useState("");
   const [lookupBusy, setLookupBusy] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
@@ -54,6 +60,23 @@ export function ItemForm({
       setLookupError(err instanceof Error ? err.message : "Lookup failed.");
     } finally {
       setLookupBusy(false);
+    }
+  }
+
+  async function handlePhoto(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-picking the same file
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const blob = await processImageFile(file);
+      const url = await uploadCover(blob);
+      setCoverUrl(url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -203,8 +226,44 @@ export function ItemForm({
           </label>
         </div>
 
-        <label>
-          Cover image URL
+        <div className="field">
+          <span className="field-label">Cover</span>
+          <div className="cover-field">
+            <div className="cover-preview">
+              {coverUrl ? (
+                <img src={coverUrl} alt="" />
+              ) : (
+                <span className="cover-preview-empty">No image</span>
+              )}
+            </div>
+            <div className="cover-actions">
+              <button
+                type="button"
+                className="ghost"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? "Uploading…" : "📷 Photo"}
+              </button>
+              {coverUrl && (
+                <button type="button" className="ghost small" onClick={() => setCoverUrl("")}>
+                  Remove
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden-file"
+              onChange={handlePhoto}
+            />
+          </div>
+          {uploadError && <p className="error">{uploadError}</p>}
+        </div>
+
+        <label className="url-fallback">
+          …or paste an image URL
           <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…" />
         </label>
 

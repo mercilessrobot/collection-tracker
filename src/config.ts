@@ -19,3 +19,26 @@ export const SUPABASE_PUBLISHABLE_KEY =
 
 export const isConfigured =
   !SUPABASE_URL.startsWith("PASTE_") && !SUPABASE_PUBLISHABLE_KEY.startsWith("PASTE_");
+
+// ---------------------------------------------------------------------------
+// OPTIONAL: METADATA LOOKUP KEYS (movies + games)
+// ---------------------------------------------------------------------------
+// These enable "search to auto-fill" when adding a movie or game. They are
+// optional — the app works without them (manual entry). Both are free.
+//   * TMDB  (movies) -> https://www.themoviedb.org  -> Settings -> API
+//                       (use the "API Key (v3 auth)" value)
+//   * RAWG  (games)  -> https://rawg.io/apidocs      -> Get API Key
+//
+// Like the Supabase key, these are read-only public-data keys and are OK to
+// ship in front-end code. Worst case if scraped: someone uses your free quota;
+// you can rotate the key anytime.
+// ---------------------------------------------------------------------------
+
+export const TMDB_API_KEY =
+  import.meta.env.VITE_TMDB_KEY ?? "PASTE_YOUR_TMDB_API_KEY_HERE";
+
+export const RAWG_API_KEY =
+  import.meta.env.VITE_RAWG_KEY ?? "PASTE_YOUR_RAWG_API_KEY_HERE";
+
+export const hasTmdb = !TMDB_API_KEY.startsWith("PASTE_");
+export const hasRawg = !RAWG_API_KEY.startsWith("PASTE_");

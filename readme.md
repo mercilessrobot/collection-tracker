@@ -81,11 +81,31 @@ you add locally shows up on the live site too.
   cover image.
 - **Books:** look up by **ISBN** to auto-fill title, author, year, and cover
   (via the free, keyless Open Library API).
+- **Movies:** search by title to auto-fill director, year, and poster (TMDB).
+- **Games:** search by title to auto-fill developer, year, and cover (RAWG).
 - Installable on your phone's home screen (PWA manifest).
+
+## Optional: enable movie & game auto-lookup
+
+The app works without these (manual entry), but adding two free, read-only API
+keys turns on "search to auto-fill" for movies and games. Paste them into
+[`src/config.ts`](src/config.ts) next to the Supabase values.
+
+- **Movies — TMDB:** create a free account at
+  <https://www.themoviedb.org> → **Settings → API** → request a developer key →
+  copy the **"API Key (v3 auth)"** value into `TMDB_API_KEY`.
+- **Games — RAWG:** create a free account at <https://rawg.io> → go to
+  <https://rawg.io/apidocs> → **Get API Key** → copy it into `RAWG_API_KEY`.
+
+Like the Supabase key, these ship in the front-end and are safe to commit
+(read-only public data). Worst case if scraped: someone uses your free quota —
+just rotate the key.
+
+> Why TMDB + RAWG (not IGDB)? Both allow direct calls from the browser, so no
+> backend is needed. IGDB blocks browser requests and needs a secret, which
+> would require a server-side proxy (e.g. a Supabase Edge Function).
 
 ## Ideas for later
 
-- Cover/metadata lookup for movies (TMDB) and games (IGDB) — these need free API
-  keys, so they're a follow-up.
 - Offline support (service worker).
 - Import/export (CSV).

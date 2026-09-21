@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL?: string;
   readonly VITE_SUPABASE_ANON_KEY?: string;
+  readonly VITE_TMDB_KEY?: string;
+  readonly VITE_RAWG_KEY?: string;
 }
 
 interface ImportMeta {

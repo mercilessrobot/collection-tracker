@@ -336,3 +336,66 @@ label {
 .isbn-row button {
   white-space: nowrap;
 }
+.lookup-hint {
+  font-size: 0.8rem;
+  margin: 0 0 1rem;
+}
+.lookup-hint code {
+  background: var(--surface-2);
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+}
+.lookup-results {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.lookup-results li + li {
+  border-top: 1px solid var(--border);
+}
+.lookup-result {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.5rem;
+}
+.lookup-result:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: transparent;
+}
+.lookup-result img,
+.lookup-thumb-placeholder {
+  width: 34px;
+  height: 50px;
+  flex: 0 0 34px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+.lookup-thumb-placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.lookup-result-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.lookup-creator {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

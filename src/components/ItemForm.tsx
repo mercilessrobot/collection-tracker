@@ -2,6 +2,11 @@ import { useState, type FormEvent } from "react";
 import type { Item, ItemDraft, ItemStatus, ItemType } from "../types";
 import { STATUS_LABELS, CREATOR_LABELS, TYPE_LABELS } from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
+import { LookupBox } from "./LookupBox";
+import type { LookupResult } from "../lib/lookup";
+import { searchMovies, resolveMovie } from "../lib/tmdb";
+import { searchGames, resolveGame } from "../lib/rawg";
+import { hasTmdb, hasRawg } from "../config";
 
 const STATUSES: ItemStatus[] = ["owned", "wishlist", "in_progress", "done"];
 
@@ -45,6 +50,15 @@ export function ItemForm({
     } finally {
       setLookupBusy(false);
     }
+  }
+
+  // Fill the form fields from a picked search result (movies / games).
+  function applyResult(r: LookupResult) {
+    setTitle(r.title);
+    if (r.creator) setCreator(r.creator);
+    if (r.year) setYear(String(r.year));
+    if (r.cover_url) setCoverUrl(r.cover_url);
+    if (r.sourceId) setIdentifier(r.sourceId);
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -93,6 +107,36 @@ export function ItemForm({
             {lookupError && <p className="error">{lookupError}</p>}
           </div>
         )}
+
+        {type === "movie" &&
+          (hasTmdb ? (
+            <LookupBox
+              label="Search movies to auto-fill (TMDB)"
+              placeholder="e.g. Blade Runner"
+              search={searchMovies}
+              resolve={resolveMovie}
+              onPick={applyResult}
+            />
+          ) : (
+            <p className="muted lookup-hint">
+              Add a free TMDB key in <code>src/config.ts</code> to search &amp; auto-fill movies.
+            </p>
+          ))}
+
+        {type === "game" &&
+          (hasRawg ? (
+            <LookupBox
+              label="Search games to auto-fill (RAWG)"
+              placeholder="e.g. The Legend of Zelda"
+              search={searchGames}
+              resolve={resolveGame}
+              onPick={applyResult}
+            />
+          ) : (
+            <p className="muted lookup-hint">
+              Add a free RAWG key in <code>src/config.ts</code> to search &amp; auto-fill games.
+            </p>
+          ))}
 
         <label>
           Title

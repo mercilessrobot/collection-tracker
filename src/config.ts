@@ -25,9 +25,9 @@ export const isConfigured =
 // ---------------------------------------------------------------------------
 // These enable "search to auto-fill" when adding a movie or game. They are
 // optional — the app works without them (manual entry). Both are free.
-//   * TMDB  (movies) -> https://www.themoviedb.org  -> Settings -> API
-//                       (use the "API Key (v3 auth)" value)
-//   * RAWG  (games)  -> https://rawg.io/apidocs      -> Get API Key
+//   * TMDB  (movies) -> https://www.themoviedb.org -> Settings -> API
+//                       (use the "API Read Access Token", the long eyJ... token)
+//   * RAWG  (games)  -> https://rawg.io/apidocs     -> Get API Key
 //
 // Like the Supabase key, these are read-only public-data keys and are OK to
 // ship in front-end code. Worst case if scraped: someone uses your free quota;
@@ -35,10 +35,11 @@ export const isConfigured =
 // ---------------------------------------------------------------------------
 
 export const TMDB_API_KEY =
-  import.meta.env.VITE_TMDB_KEY ?? "PASTE_YOUR_TMDB_API_KEY_HERE";
+  import.meta.env.VITE_TMDB_KEY ??
+  "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhMzdiNDgyZTk3ZDExZTRiOTFjNmUxYWYyMWQxODhhNSIsIm5iZiI6MTc5MDAwOTY3MC40ODcsInN1YiI6IjZhYjE2MTQ2MTQzYThkN2RlMzljOTJkZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cDHVxP3LOXJTDruXspse-Tm1e6QAyX0pqh5ctM_b4Wk";
 
 export const RAWG_API_KEY =
-  import.meta.env.VITE_RAWG_KEY ?? "PASTE_YOUR_RAWG_API_KEY_HERE";
+  import.meta.env.VITE_RAWG_KEY ?? "f6c32dd72cef4d128dec429328804a0d";
 
 export const hasTmdb = !TMDB_API_KEY.startsWith("PASTE_");
 export const hasRawg = !RAWG_API_KEY.startsWith("PASTE_");

@@ -93,7 +93,7 @@ keys turns on "search to auto-fill" for movies and games. Paste them into
 
 - **Movies — TMDB:** create a free account at
   <https://www.themoviedb.org> → **Settings → API** → request a developer key →
-  copy the **"API Key (v3 auth)"** value into `TMDB_API_KEY`.
+  copy the **"API Read Access Token"** (the long `eyJ...` token) into `TMDB_API_KEY`.
 - **Games — RAWG:** create a free account at <https://rawg.io> → go to
   <https://rawg.io/apidocs> → **Get API Key** → copy it into `RAWG_API_KEY`.
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 
 // Camera barcode scanner. Lazy-loads ZXing so it isn't in the main bundle.
 // Reads 1D retail barcodes (EAN-13 / EAN-8 / UPC-A / UPC-E).
@@ -9,6 +10,7 @@ export function BarcodeScanner({
   onDetected: (code: string) => void;
   onClose: () => void;
 }) {
+  useLockBodyScroll();
   const videoRef = useRef<HTMLVideoElement>(null);
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;

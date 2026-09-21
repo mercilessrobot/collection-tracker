@@ -11,6 +11,7 @@ import { upcToTitle } from "../lib/barcode";
 import { hasTmdb, hasRawg } from "../config";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { uploadCover } from "../lib/storage";
+import { normalizeImage } from "../lib/image";
 
 const CropModal = lazy(() => import("./CropModal").then((m) => ({ default: m.CropModal })));
 
@@ -68,12 +69,17 @@ export function ItemForm({
     }
   }
 
-  function handlePhoto(e: ChangeEvent<HTMLInputElement>) {
+  async function handlePhoto(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = ""; // allow re-picking the same file
     if (!file) return;
     setUploadError(null);
-    setCropSrc(URL.createObjectURL(file));
+    try {
+      const blob = await normalizeImage(file);
+      setCropSrc(URL.createObjectURL(blob));
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Could not open that image.");
+    }
   }
 
   async function handleCropDone(blob: Blob) {

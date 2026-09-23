@@ -167,6 +167,102 @@ label {
   font-size: 0.85rem;
 }
 
+.menu-anchor {
+  position: relative;
+}
+.section-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.4rem;
+  border-radius: 8px;
+  color: var(--text);
+}
+.section-select:hover {
+  background: var(--surface);
+  border-color: transparent;
+}
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.chev {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.kebab {
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  border-color: transparent;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--text);
+}
+.kebab:hover {
+  background: var(--surface);
+}
+.popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+.popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  z-index: 31;
+  min-width: 190px;
+  padding: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+.section-menu {
+  left: 0;
+}
+.app-menu {
+  right: 0;
+}
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem;
+  color: var(--text);
+  font-size: 1rem;
+}
+.popover-item:hover {
+  background: var(--surface-2);
+  border-color: transparent;
+}
+.popover-item.active {
+  background: var(--surface-2);
+  color: #fff;
+}
+.popover-item.active .badge {
+  background: var(--primary);
+  color: #fff;
+}
+.app-menu-email {
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+
 .tabs {
   display: flex;
   gap: 0.5rem;
@@ -196,17 +292,30 @@ label {
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.5rem;
   padding: 1rem;
 }
 .search {
-  flex: 1 1 180px;
+  flex: 1 1 90px;
+  min-width: 0;
   margin-top: 0;
 }
 .toolbar .control {
   flex: 0 0 auto;
   width: auto;
   margin-top: 0;
+  padding: 0.5rem;
+}
+.add-btn {
+  flex: 0 0 auto;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 8px;
 }
 .toolbar .primary {
   white-space: nowrap;

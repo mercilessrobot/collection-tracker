@@ -318,7 +318,7 @@ label {
   font-size: 1.6rem;
   font-weight: 700;
   line-height: 1;
-  border-radius: 8px;
+  border-radius: 50%;
 }
 /* Floating search + add bar, pinned to the bottom of the screen. */
 .floating-bar {

@@ -147,7 +147,7 @@ label {
 .app {
   max-width: 1000px;
   margin: 0 auto;
-  padding-bottom: 3rem;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom));
 }
 .topbar {
   display: flex;
@@ -320,8 +320,36 @@ label {
   line-height: 1;
   border-radius: 8px;
 }
-.controls-row {
-  padding-top: 0;
+/* Floating search + add bar, pinned to the bottom of the screen. */
+.floating-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 15;
+  width: min(600px, calc(100% - 1.5rem));
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+}
+.floating-bar .search {
+  flex: 1;
+  min-width: 0;
+  height: 2.6rem;
+  margin-top: 0;
+  border: none;
+  background: transparent;
+  padding-left: 1rem;
+  border-radius: 999px;
+}
+.floating-bar .search:focus {
+  outline: none;
+  background: var(--bg);
 }
 .toolbar .primary {
   white-space: nowrap;

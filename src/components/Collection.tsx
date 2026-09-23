@@ -14,8 +14,8 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "added", label: "Newest" },
   { value: "title-asc", label: "A → Z" },
   { value: "title-desc", label: "Z → A" },
-  { value: "year-desc", label: "Year ↓" },
-  { value: "year-asc", label: "Year ↑" },
+  { value: "year-desc", label: "Year ↓︎" },
+  { value: "year-asc", label: "Year ↑︎" },
   { value: "rating-desc", label: "Rating" },
 ];
 
@@ -165,7 +165,7 @@ export function Collection({ session }: { session: Session }) {
             aria-expanded={sectionOpen}
           >
             <span className="section-title">
-              {TYPE_EMOJI[activeType]} {TYPE_LABELS[activeType]} Collection
+              {TYPE_EMOJI[activeType]} {TYPE_LABELS[activeType].replace(/s$/, "")} Collection
             </span>
             <span className="chev" aria-hidden="true">
               ▾

@@ -62,7 +62,7 @@ export const STATUS_LABELS: Record<ItemStatus, string> = {
 // Publisher + Platform instead).
 export const CREATOR_LABELS: Record<ItemType, string> = {
   game: "Developer",
-  movie: "Director / studio",
+  movie: "Director",
   book: "Author",
 };
 

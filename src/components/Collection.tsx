@@ -235,36 +235,49 @@ export function Collection({ session }: { session: Session }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select
-          className="control"
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortKey)}
-          aria-label="Sort"
-        >
-          {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        {filterOptions.length > 0 && (
-          <select
-            className="control"
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            aria-label="Filter"
-          >
-            <option value="">{activeType === "game" ? "All platforms" : "All formats"}</option>
-            {filterOptions.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
-        )}
         <button className="primary add-btn" onClick={startAdd} aria-label={`Add ${activeType}`}>
           +
         </button>
+      </div>
+
+      <div className="toolbar controls-row">
+        <span className="control-group">
+          <span className="control-icon" aria-hidden="true">
+            ↕️
+          </span>
+          <select
+            className="control"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+            aria-label="Sort"
+          >
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </span>
+        {activeType !== "book" && (
+          <span className="control-group">
+            <span className="control-icon" aria-hidden="true">
+              🎛️
+            </span>
+            <select
+              className="control"
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+              aria-label="Filter"
+            >
+              <option value="">{activeType === "game" ? "All platforms" : "All formats"}</option>
+              {filterOptions.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
+          </span>
+        )}
       </div>
 
       {error && (

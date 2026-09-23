@@ -227,19 +227,6 @@ export function Collection({ session }: { session: Session }) {
         </div>
       </header>
 
-      <div className="toolbar">
-        <input
-          className="search"
-          type="search"
-          placeholder={`Search ${TYPE_LABELS[activeType].toLowerCase()}…`}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button className="primary add-btn" onClick={startAdd} aria-label={`Add ${activeType}`}>
-          +
-        </button>
-      </div>
-
       <div className="toolbar controls-row">
         <select
           className="control"
@@ -289,6 +276,21 @@ export function Collection({ session }: { session: Session }) {
           ))
         )}
       </main>
+
+      {!showForm && !viewing && (
+        <div className="floating-bar">
+          <input
+            className="search"
+            type="search"
+            placeholder={`Search ${TYPE_LABELS[activeType].toLowerCase()}…`}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button className="primary add-btn" onClick={startAdd} aria-label={`Add ${activeType}`}>
+            +
+          </button>
+        </div>
+      )}
 
       {showForm && (
         <ItemForm

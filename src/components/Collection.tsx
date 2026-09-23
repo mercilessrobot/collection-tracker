@@ -249,7 +249,7 @@ export function Collection({ session }: { session: Session }) {
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
-              ↕️ {o.label}
+              {o.label}
             </option>
           ))}
         </select>
@@ -260,10 +260,10 @@ export function Collection({ session }: { session: Session }) {
             onChange={(e) => setFilterValue(e.target.value)}
             aria-label="Filter"
           >
-            <option value="">🎛️ {activeType === "game" ? "All platforms" : "All formats"}</option>
+            <option value="">{activeType === "game" ? "All platforms" : "All formats"}</option>
             {filterOptions.map((o) => (
               <option key={o} value={o}>
-                🎛️ {o}
+                {o}
               </option>
             ))}
           </select>

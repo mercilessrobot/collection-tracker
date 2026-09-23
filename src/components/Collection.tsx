@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../supabase";
 import type { Item, ItemDraft, ItemType } from "../types";
-import { TYPE_LABELS, STATUS_LABELS } from "../types";
+import { TYPE_LABELS, TYPE_EMOJI, STATUS_LABELS } from "../types";
 import { ItemForm } from "./ItemForm";
 import { ItemDetail } from "./ItemDetail";
 
@@ -164,7 +164,9 @@ export function Collection({ session }: { session: Session }) {
             aria-haspopup="true"
             aria-expanded={sectionOpen}
           >
-            <span className="section-title">{TYPE_LABELS[activeType]} Collection</span>
+            <span className="section-title">
+              {TYPE_EMOJI[activeType]} {TYPE_LABELS[activeType]} Collection
+            </span>
             <span className="chev" aria-hidden="true">
               ▾
             </span>
@@ -183,7 +185,9 @@ export function Collection({ session }: { session: Session }) {
                       setSectionOpen(false);
                     }}
                   >
-                    <span>{TYPE_LABELS[t]}</span>
+                    <span>
+                      {TYPE_EMOJI[t]} {TYPE_LABELS[t]}
+                    </span>
                     <span className="badge">{counts[t]}</span>
                   </button>
                 ))}

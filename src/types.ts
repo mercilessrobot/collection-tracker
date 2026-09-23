@@ -45,6 +45,12 @@ export const TYPE_LABELS: Record<ItemType, string> = {
   book: "Books",
 };
 
+export const TYPE_EMOJI: Record<ItemType, string> = {
+  game: "🎮",
+  movie: "🎬",
+  book: "📚",
+};
+
 export const STATUS_LABELS: Record<ItemStatus, string> = {
   owned: "Owned",
   wishlist: "Wishlist",

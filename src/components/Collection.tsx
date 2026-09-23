@@ -241,42 +241,32 @@ export function Collection({ session }: { session: Session }) {
       </div>
 
       <div className="toolbar controls-row">
-        <span className="control-group">
-          <span className="control-icon" aria-hidden="true">
-            ↕️
-          </span>
+        <select
+          className="control"
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+          aria-label="Sort"
+        >
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              ↕️ {o.label}
+            </option>
+          ))}
+        </select>
+        {activeType !== "book" && (
           <select
             className="control"
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortKey)}
-            aria-label="Sort"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            aria-label="Filter"
           >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
+            <option value="">🎛️ {activeType === "game" ? "All platforms" : "All formats"}</option>
+            {filterOptions.map((o) => (
+              <option key={o} value={o}>
+                🎛️ {o}
               </option>
             ))}
           </select>
-        </span>
-        {activeType !== "book" && (
-          <span className="control-group">
-            <span className="control-icon" aria-hidden="true">
-              🎛️
-            </span>
-            <select
-              className="control"
-              value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
-              aria-label="Filter"
-            >
-              <option value="">{activeType === "game" ? "All platforms" : "All formats"}</option>
-              {filterOptions.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
-          </span>
         )}
       </div>
 

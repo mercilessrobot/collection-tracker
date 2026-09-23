@@ -11,12 +11,12 @@ const TYPES: ItemType[] = ["game", "movie", "book"];
 type SortKey = "added" | "title-asc" | "title-desc" | "year-desc" | "year-asc" | "rating-desc";
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: "added", label: "Recently added" },
-  { value: "title-asc", label: "Title A–Z" },
-  { value: "title-desc", label: "Title Z–A" },
-  { value: "year-desc", label: "Year (newest)" },
-  { value: "year-asc", label: "Year (oldest)" },
-  { value: "rating-desc", label: "Rating (high)" },
+  { value: "added", label: "Newest" },
+  { value: "title-asc", label: "A → Z" },
+  { value: "title-desc", label: "Z → A" },
+  { value: "year-desc", label: "Year ↓" },
+  { value: "year-asc", label: "Year ↑" },
+  { value: "rating-desc", label: "Rating" },
 ];
 
 export function Collection({ session }: { session: Session }) {
@@ -30,6 +30,8 @@ export function Collection({ session }: { session: Session }) {
   const [viewing, setViewing] = useState<Item | null>(null);
   const [sort, setSort] = useState<SortKey>("added");
   const [filterValue, setFilterValue] = useState("");
+  const [sectionOpen, setSectionOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Reset the format/platform filter when switching tabs.
   useEffect(() => {
@@ -155,26 +157,71 @@ export function Collection({ session }: { session: Session }) {
   return (
     <div className="app">
       <header className="topbar">
-        <span className="brand">📚 Collection</span>
-        <div className="topbar-right">
-          <span className="muted email">{session.user.email}</span>
-          <button className="ghost" onClick={() => supabase.auth.signOut()}>
-            Sign out
+        <div className="menu-anchor">
+          <button
+            className="section-select"
+            onClick={() => setSectionOpen((v) => !v)}
+            aria-haspopup="true"
+            aria-expanded={sectionOpen}
+          >
+            <span className="section-title">{TYPE_LABELS[activeType]} Collection</span>
+            <span className="chev" aria-hidden="true">
+              ▾
+            </span>
           </button>
+          {sectionOpen && (
+            <>
+              <div className="popover-backdrop" onClick={() => setSectionOpen(false)} />
+              <div className="popover section-menu" role="menu">
+                {TYPES.map((t) => (
+                  <button
+                    key={t}
+                    role="menuitem"
+                    className={t === activeType ? "popover-item active" : "popover-item"}
+                    onClick={() => {
+                      setActiveType(t);
+                      setSectionOpen(false);
+                    }}
+                  >
+                    <span>{TYPE_LABELS[t]}</span>
+                    <span className="badge">{counts[t]}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="menu-anchor">
+          <button
+            className="kebab"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-haspopup="true"
+            aria-expanded={menuOpen}
+            aria-label="Menu"
+          >
+            ⋮
+          </button>
+          {menuOpen && (
+            <>
+              <div className="popover-backdrop" onClick={() => setMenuOpen(false)} />
+              <div className="popover app-menu" role="menu">
+                <div className="app-menu-email">{session.user.email}</div>
+                <button
+                  className="popover-item"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    supabase.auth.signOut();
+                  }}
+                >
+                  Sign out
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </header>
-
-      <nav className="tabs">
-        {TYPES.map((t) => (
-          <button
-            key={t}
-            className={t === activeType ? "tab active" : "tab"}
-            onClick={() => setActiveType(t)}
-          >
-            {TYPE_LABELS[t]} <span className="badge">{counts[t]}</span>
-          </button>
-        ))}
-      </nav>
 
       <div className="toolbar">
         <input
@@ -211,8 +258,8 @@ export function Collection({ session }: { session: Session }) {
             ))}
           </select>
         )}
-        <button className="primary" onClick={startAdd}>
-          + Add {activeType}
+        <button className="primary add-btn" onClick={startAdd} aria-label={`Add ${activeType}`}>
+          +
         </button>
       </div>
 

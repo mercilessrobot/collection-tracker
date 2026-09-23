@@ -8,6 +8,17 @@ import { ItemDetail } from "./ItemDetail";
 
 const TYPES: ItemType[] = ["game", "movie", "book"];
 
+type SortKey = "added" | "title-asc" | "title-desc" | "year-desc" | "year-asc" | "rating-desc";
+
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "added", label: "Recently added" },
+  { value: "title-asc", label: "Title A–Z" },
+  { value: "title-desc", label: "Title Z–A" },
+  { value: "year-desc", label: "Year (newest)" },
+  { value: "year-asc", label: "Year (oldest)" },
+  { value: "rating-desc", label: "Rating (high)" },
+];
+
 export function Collection({ session }: { session: Session }) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +28,13 @@ export function Collection({ session }: { session: Session }) {
   const [editing, setEditing] = useState<Item | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewing, setViewing] = useState<Item | null>(null);
+  const [sort, setSort] = useState<SortKey>("added");
+  const [filterValue, setFilterValue] = useState("");
+
+  // Reset the format/platform filter when switching tabs.
+  useEffect(() => {
+    setFilterValue("");
+  }, [activeType]);
 
   async function loadItems() {
     setLoading(true);
@@ -39,17 +57,62 @@ export function Collection({ session }: { session: Session }) {
     return c;
   }, [items]);
 
+  // Distinct platforms (games) / formats (movies) present, for the filter menu.
+  const filterOptions = useMemo(() => {
+    if (activeType === "book") return [] as string[];
+    const key = activeType === "game" ? "platform" : "format";
+    const values = new Set<string>();
+    for (const i of items) {
+      const v = i[key];
+      if (i.type === activeType && v) values.add(v);
+    }
+    return [...values].sort((a, b) => a.localeCompare(b));
+  }, [items, activeType]);
+
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return items
-      .filter((i) => i.type === activeType)
-      .filter(
-        (i) =>
-          !q ||
-          i.title.toLowerCase().includes(q) ||
-          (i.creator ?? "").toLowerCase().includes(q)
+    let list = items.filter((i) => i.type === activeType);
+
+    if (q) {
+      list = list.filter((i) =>
+        [i.title, i.creator, i.publisher, i.platform].some((v) =>
+          (v ?? "").toLowerCase().includes(q)
+        )
       );
-  }, [items, activeType, search]);
+    }
+
+    if (filterValue) {
+      list = list.filter((i) =>
+        activeType === "game" ? i.platform === filterValue : i.format === filterValue
+      );
+    }
+
+    const sorted = [...list];
+    switch (sort) {
+      case "title-asc":
+        sorted.sort((a, b) =>
+          a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: "base" })
+        );
+        break;
+      case "title-desc":
+        sorted.sort((a, b) =>
+          b.title.localeCompare(a.title, undefined, { numeric: true, sensitivity: "base" })
+        );
+        break;
+      case "year-desc":
+        sorted.sort((a, b) => (b.year ?? -Infinity) - (a.year ?? -Infinity));
+        break;
+      case "year-asc":
+        sorted.sort((a, b) => (a.year ?? Infinity) - (b.year ?? Infinity));
+        break;
+      case "rating-desc":
+        sorted.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
+        break;
+      default:
+        break; // "added" keeps the loaded newest-first order
+    }
+    return sorted;
+  }, [items, activeType, search, filterValue, sort]);
 
   async function handleSave(draft: ItemDraft, id?: string): Promise<string | null> {
     if (id) {
@@ -121,6 +184,33 @@ export function Collection({ session }: { session: Session }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <select
+          className="control"
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+          aria-label="Sort"
+        >
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {filterOptions.length > 0 && (
+          <select
+            className="control"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            aria-label="Filter"
+          >
+            <option value="">{activeType === "game" ? "All platforms" : "All formats"}</option>
+            {filterOptions.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        )}
         <button className="primary" onClick={startAdd}>
           + Add {activeType}
         </button>

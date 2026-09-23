@@ -61,3 +61,74 @@ export const CREATOR_LABELS: Record<ItemType, string> = {
 };
 
 export const MOVIE_FORMATS = ["DVD", "VHS", "Blu-Ray", "4K Blu-Ray"] as const;
+
+// Major gaming platforms, grouped by maker for the game Platform picker.
+export const PLATFORM_GROUPS: { label: string; options: string[] }[] = [
+  {
+    label: "Nintendo",
+    options: [
+      "NES",
+      "SNES",
+      "Nintendo 64",
+      "GameCube",
+      "Wii",
+      "Wii U",
+      "Switch",
+      "Game Boy",
+      "Game Boy Color",
+      "Game Boy Advance",
+      "Nintendo DS",
+      "Nintendo 3DS",
+    ],
+  },
+  {
+    label: "Sega",
+    options: [
+      "Sega Master System",
+      "Sega Genesis",
+      "Sega CD",
+      "Sega 32X",
+      "Sega Saturn",
+      "Sega Dreamcast",
+      "Sega Game Gear",
+    ],
+  },
+  {
+    label: "Sony",
+    options: [
+      "PlayStation",
+      "PlayStation 2",
+      "PlayStation 3",
+      "PlayStation 4",
+      "PlayStation 5",
+      "PSP",
+      "PS Vita",
+    ],
+  },
+  {
+    label: "Microsoft",
+    options: ["Xbox", "Xbox 360", "Xbox One", "Xbox Series X/S"],
+  },
+  {
+    label: "Atari",
+    options: ["Atari 2600", "Atari 5200", "Atari 7800", "Atari Jaguar", "Atari Lynx"],
+  },
+  {
+    label: "Other",
+    options: [
+      "PC",
+      "Mac",
+      "Arcade",
+      "Neo Geo",
+      "TurboGrafx-16",
+      "3DO",
+      "Intellivision",
+      "ColecoVision",
+      "Commodore 64",
+      "Amiga",
+      "Mobile",
+    ],
+  },
+];
+
+export const PLATFORMS: string[] = PLATFORM_GROUPS.flatMap((g) => g.options);

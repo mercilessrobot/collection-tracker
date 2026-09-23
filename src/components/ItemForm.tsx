@@ -67,6 +67,7 @@ export function ItemForm({
       const result = await lookupIsbn(value);
       if (result.title) setTitle(result.title);
       if (result.creator) setCreator(result.creator);
+      if (result.publisher) setPublisher(result.publisher);
       if (result.year) setYear(String(result.year));
       if (result.cover_url) setCoverUrl(result.cover_url);
       setIdentifier(value.replace(/[^0-9Xx]/g, ""));
@@ -248,10 +249,16 @@ export function ItemForm({
             </label>
           </div>
         ) : (
-          <label>
-            {CREATOR_LABELS[type]}
-            <input value={creator} onChange={(e) => setCreator(e.target.value)} />
-          </label>
+          <>
+            <label>
+              {CREATOR_LABELS[type]}
+              <input value={creator} onChange={(e) => setCreator(e.target.value)} />
+            </label>
+            <label>
+              {type === "book" ? "Publisher" : "Label"}
+              <input value={publisher} onChange={(e) => setPublisher(e.target.value)} />
+            </label>
+          </>
         )}
 
         {type === "movie" && (

@@ -95,8 +95,11 @@ function detailFields(item: Item): { label: string; value: string }[] {
     if (item.platform) f.push({ label: "Platform", value: item.platform });
     if (!item.publisher && !item.platform && item.creator)
       f.push({ label: "Developer", value: item.creator });
-  } else if (item.creator) {
-    f.push({ label: item.type === "book" ? "Author" : "Director", value: item.creator });
+  } else {
+    if (item.creator)
+      f.push({ label: item.type === "book" ? "Author" : "Director", value: item.creator });
+    if (item.publisher)
+      f.push({ label: item.type === "book" ? "Publisher" : "Label", value: item.publisher });
   }
   if (item.type === "movie" && item.format) f.push({ label: "Format", value: item.format });
   if (item.year) f.push({ label: "Year", value: String(item.year) });

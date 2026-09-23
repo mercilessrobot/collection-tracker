@@ -9,6 +9,9 @@
   --primary-hover: #818cf8;
   --danger: #f87171;
   --radius: 12px;
+  /* Render native controls (select menus, pickers, scrollbars) in dark mode,
+     so their text/arrows are light on their dark background. */
+  color-scheme: dark;
 }
 
 * {

@@ -1,6 +1,13 @@
 import { useState, useRef, lazy, Suspense, type FormEvent, type ChangeEvent } from "react";
 import type { Item, ItemDraft, ItemStatus, ItemType } from "../types";
-import { STATUS_LABELS, CREATOR_LABELS, TYPE_LABELS, MOVIE_FORMATS } from "../types";
+import {
+  STATUS_LABELS,
+  CREATOR_LABELS,
+  TYPE_LABELS,
+  MOVIE_FORMATS,
+  PLATFORM_GROUPS,
+  PLATFORMS,
+} from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
 import { LookupBox } from "./LookupBox";
 import { ScanButton } from "./ScanButton";
@@ -108,7 +115,6 @@ export function ItemForm({
     setTitle(r.title);
     if (r.creator) setCreator(r.creator);
     if (r.publisher) setPublisher(r.publisher);
-    if (r.platform) setPlatform(r.platform);
     if (r.year) setYear(String(r.year));
     if (r.cover_url) setCoverUrl(r.cover_url);
     if (r.sourceId) setIdentifier(r.sourceId);
@@ -224,7 +230,21 @@ export function ItemForm({
             </label>
             <label>
               Platform
-              <input value={platform} onChange={(e) => setPlatform(e.target.value)} />
+              <select value={platform} onChange={(e) => setPlatform(e.target.value)}>
+                <option value="">—</option>
+                {platform && !PLATFORMS.includes(platform) && (
+                  <option value={platform}>{platform}</option>
+                )}
+                {PLATFORM_GROUPS.map((g) => (
+                  <optgroup key={g.label} label={g.label}>
+                    {g.options.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
             </label>
           </div>
         ) : (

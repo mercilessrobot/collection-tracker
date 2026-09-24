@@ -10,13 +10,11 @@ export function ItemDetail({
   item,
   onClose,
   onEdit,
-  onDelete,
   onRefreshValue,
 }: {
   item: Item;
   onClose: () => void;
   onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
   onRefreshValue?: (item: Item) => Promise<Market | null>;
 }) {
   useLockBodyScroll();
@@ -119,13 +117,10 @@ export function ItemDetail({
           )}
 
           <div className="modal-actions detail-actions">
-            <button type="button" className="ghost danger" onClick={() => onDelete(item)}>
-              Delete
-            </button>
-            <span className="spacer" />
             <button type="button" className="ghost" onClick={onClose}>
               Close
             </button>
+            <span className="spacer" />
             <button type="button" className="primary" onClick={() => onEdit(item)}>
               Edit
             </button>

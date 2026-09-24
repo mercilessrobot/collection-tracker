@@ -90,6 +90,7 @@ export function LookupBox({
               }
             }}
             placeholder={placeholder}
+            autoFocus
           />
           <button
             type="button"

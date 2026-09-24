@@ -29,6 +29,7 @@ create index if not exists items_user_type_idx on public.items (user_id, type);
 alter table public.items add column if not exists publisher text; -- game
 alter table public.items add column if not exists platform text;  -- game
 alter table public.items add column if not exists format text;    -- movie (DVD/VHS/Blu-Ray/4K Blu-Ray)
+alter table public.items add column if not exists condition text; -- game (loose/cib/new)
 alter table public.items add column if not exists market jsonb;   -- game market value (PriceCharting)
 
 -- Row Level Security: every row is private to the user who created it.

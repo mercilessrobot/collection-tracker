@@ -425,6 +425,26 @@ label {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+/* Tilt-driven sheen (enabled via the ⋮ menu; reads --tiltx/--tilty from <html>). */
+.item-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    140px 140px at calc(50% + var(--tiltx, 0) * 45%) calc(35% + var(--tilty, 0) * 45%),
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+.tilt-shine .item-card::after {
+  opacity: 1;
 }
 .cover {
   flex: 0 0 60px;

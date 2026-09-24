@@ -127,6 +127,19 @@ export function Collection({ session }: { session: Session }) {
     return sorted;
   }, [items, activeType, search, filterValue, sort, view]);
 
+  // Summed value of the currently-visible games (for the "Values" total).
+  const totalValue = useMemo(() => {
+    if (activeType !== "game") return 0;
+    let sum = 0;
+    for (const it of visible) {
+      if (it.condition) {
+        const v = headlineValue(it.market, it.condition);
+        if (v) sum += v;
+      }
+    }
+    return sum;
+  }, [visible, activeType]);
+
   async function handleSave(draft: ItemDraft, id?: string): Promise<string | null> {
     if (id) {
       const updated = { ...draft, updated_at: new Date().toISOString() };
@@ -305,6 +318,16 @@ export function Collection({ session }: { session: Session }) {
           </label>
         )}
       </div>
+
+      <p className="result-count">
+        {visible.length}{" "}
+        {visible.length === 1
+          ? TYPE_LABELS[activeType].replace(/s$/, "").toLowerCase()
+          : TYPE_LABELS[activeType].toLowerCase()}
+        {showValues && activeType === "game" && totalValue > 0
+          ? ` • ${formatMoney(totalValue)} value`
+          : ""}
+      </p>
 
       {error && (
         <p className="error banner" onClick={() => setError(null)}>

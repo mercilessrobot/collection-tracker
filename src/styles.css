@@ -321,6 +321,13 @@ label {
   margin-top: 0;
   padding: 0.5rem;
 }
+.result-count {
+  margin: -0.5rem 0 0;
+  padding: 0 1rem 0.5rem;
+  font-size: 10px;
+  color: #a5b4fc;
+  color: color-mix(in srgb, var(--primary), white 50%);
+}
 .add-btn {
   flex: 0 0 auto;
   width: 2.6rem;

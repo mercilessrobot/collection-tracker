@@ -129,18 +129,18 @@ export function Collection({ session }: { session: Session }) {
 
   async function handleSave(draft: ItemDraft, id?: string): Promise<string | null> {
     if (id) {
-      const { error } = await supabase
-        .from("items")
-        .update({ ...draft, updated_at: new Date().toISOString() })
-        .eq("id", id);
+      const updated = { ...draft, updated_at: new Date().toISOString() };
+      const { error } = await supabase.from("items").update(updated).eq("id", id);
       if (error) return error.message;
+      // Patch the list in place so scroll position is preserved (no refetch).
+      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...updated } : it)));
     } else {
-      const { error } = await supabase.from("items").insert(draft);
+      const { data, error } = await supabase.from("items").insert(draft).select().single();
       if (error) return error.message;
+      if (data) setItems((prev) => [data as Item, ...prev]);
     }
     setShowForm(false);
     setEditing(null);
-    await loadItems();
     return null;
   }
 
@@ -151,7 +151,7 @@ export function Collection({ session }: { session: Session }) {
       setError(error.message);
       return false;
     }
-    await loadItems();
+    setItems((prev) => prev.filter((it) => it.id !== item.id));
     return true;
   }
 

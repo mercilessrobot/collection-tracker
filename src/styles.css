@@ -333,7 +333,7 @@ label {
   gap: 0.5rem;
   padding: 0.4rem;
   background: var(--surface);
-  border: 6px solid rgba(255, 255, 255, 0.15);
+  border: 6px solid rgba(255, 255, 255, 0.05);
   border-radius: 999px;
   box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
 }
@@ -342,7 +342,7 @@ label {
   min-width: 0;
   height: 2.6rem;
   margin-top: 0;
-  border: 3px solid rgba(255, 255, 255, 0.15);
+  border: 3px solid rgba(255, 255, 255, 0.05);
   background: transparent;
   padding-left: 1rem;
   border-radius: 999px;

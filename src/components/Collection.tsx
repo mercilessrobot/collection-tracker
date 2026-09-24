@@ -26,6 +26,7 @@ export function Collection({ session }: { session: Session }) {
   const [error, setError] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<ItemType>("game");
   const [search, setSearch] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
   const [editing, setEditing] = useState<Item | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewing, setViewing] = useState<Item | null>(null);
@@ -182,6 +183,8 @@ export function Collection({ session }: { session: Session }) {
     setShowForm(true);
   }
 
+  const searchExpanded = searchFocused || search.trim().length > 0;
+
   return (
     <div className="app">
       <header className="topbar">
@@ -329,14 +332,26 @@ export function Collection({ session }: { session: Session }) {
       </main>
 
       {!showForm && !viewing && (
-        <div className="floating-bar">
-          <input
-            className="search"
-            type="search"
-            placeholder={`Search ${TYPE_LABELS[activeType].toLowerCase()}…`}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className={searchExpanded ? "floating-bar expanded" : "floating-bar"}>
+          {searchExpanded ? (
+            <input
+              className="search"
+              type="search"
+              placeholder={`Search ${TYPE_LABELS[activeType].toLowerCase()}…`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onBlur={() => setSearchFocused(false)}
+              autoFocus
+            />
+          ) : (
+            <button
+              className="ghost search-icon"
+              onClick={() => setSearchFocused(true)}
+              aria-label="Search"
+            >
+              🔍
+            </button>
+          )}
           <button className="primary add-btn" onClick={startAdd} aria-label={`Add ${activeType}`}>
             +
           </button>

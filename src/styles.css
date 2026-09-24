@@ -381,8 +381,8 @@ label {
 .value-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  margin: 0;
+  gap: 0.2rem;
+  margin: 0 0 0 auto;
   font-size: 0.9rem;
   color: var(--muted);
   white-space: nowrap;

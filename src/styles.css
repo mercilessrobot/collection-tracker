@@ -354,6 +354,34 @@ label {
   outline: none;
   background: var(--bg);
 }
+
+.value-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.value-summary {
+  font-size: 0.85rem;
+}
+.item-value {
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+  color: #34d399;
+}
+.value-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.value-toggle input {
+  width: auto;
+  margin: 0;
+}
 .toolbar .primary {
   white-space: nowrap;
 }

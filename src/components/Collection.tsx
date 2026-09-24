@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../supabase";
-import type { Item, ItemDraft, ItemType } from "../types";
+import type { Item, ItemDraft, ItemType, Market } from "../types";
 import { TYPE_LABELS, TYPE_EMOJI } from "../types";
 import { ItemForm } from "./ItemForm";
 import { ItemDetail } from "./ItemDetail";
+import { headlineValue, formatMoney, fetchGameValue } from "../lib/pricecharting";
 
 const TYPES: ItemType[] = ["game", "movie", "book"];
 
@@ -33,6 +34,7 @@ export function Collection({ session }: { session: Session }) {
   const [sectionOpen, setSectionOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [view, setView] = useState<"collection" | "wishlist">("collection");
+  const [showValues, setShowValues] = useState(false);
 
   // Reset the format/platform filter when switching tabs.
   useEffect(() => {
@@ -151,6 +153,23 @@ export function Collection({ session }: { session: Session }) {
     }
     await loadItems();
     return true;
+  }
+
+  // Refresh one game's market value (called when its detail view opens).
+  async function refreshValue(item: Item): Promise<Market | null> {
+    if (item.type !== "game") return null;
+    try {
+      const m = await fetchGameValue(item.title, item.platform);
+      const { error } = await supabase
+        .from("items")
+        .update({ market: m, updated_at: new Date().toISOString() })
+        .eq("id", item.id);
+      if (error) return null;
+      setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, market: m } : it)));
+      return m;
+    } catch {
+      return null;
+    }
   }
 
   function startAdd() {
@@ -275,6 +294,16 @@ export function Collection({ session }: { session: Session }) {
             ))}
           </select>
         )}
+        {activeType === "game" && (
+          <label className="value-toggle">
+            <input
+              type="checkbox"
+              checked={showValues}
+              onChange={(e) => setShowValues(e.target.checked)}
+            />
+            Values
+          </label>
+        )}
       </div>
 
       {error && (
@@ -294,7 +323,7 @@ export function Collection({ session }: { session: Session }) {
           </p>
         ) : (
           visible.map((item) => (
-            <ItemCard key={item.id} item={item} onOpen={setViewing} />
+            <ItemCard key={item.id} item={item} onOpen={setViewing} showValue={showValues} />
           ))
         )}
       </main>
@@ -338,17 +367,27 @@ export function Collection({ session }: { session: Session }) {
           onDelete={async (it) => {
             if (await handleDelete(it)) setViewing(null);
           }}
+          onRefreshValue={refreshValue}
         />
       )}
     </div>
   );
 }
 
-function ItemCard({ item, onOpen }: { item: Item; onOpen: (i: Item) => void }) {
+function ItemCard({
+  item,
+  onOpen,
+  showValue,
+}: {
+  item: Item;
+  onOpen: (i: Item) => void;
+  showValue: boolean;
+}) {
   const subtitle =
     item.type === "game"
       ? [item.publisher, item.platform].filter(Boolean).join(" · ") || item.creator
       : item.creator;
+  const value = showValue && item.type === "game" ? formatMoney(headlineValue(item.market)) : null;
   return (
     <article className="item-card clickable" onClick={() => onOpen(item)}>
       <div className="cover">
@@ -376,6 +415,7 @@ function ItemCard({ item, onOpen }: { item: Item; onOpen: (i: Item) => void }) {
             </span>
           ) : null}
         </p>
+        {value && <p className="item-value">{value}</p>}
       </div>
     </article>
   );

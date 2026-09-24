@@ -388,7 +388,7 @@ function ItemCard({
       ? [item.publisher, item.platform].filter(Boolean).join(" · ") || item.creator
       : item.creator;
   const value =
-    showValue && item.type === "game"
+    showValue && item.type === "game" && item.condition
       ? formatMoney(headlineValue(item.market, item.condition))
       : null;
   return (
@@ -418,7 +418,7 @@ function ItemCard({
             </span>
           ) : null}
         </p>
-        {value && <p className="item-value">{value}</p>}
+        {value && <p className="item-value">Value: {value}</p>}
       </div>
     </article>
   );

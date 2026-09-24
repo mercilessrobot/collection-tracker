@@ -365,9 +365,18 @@ label {
   font-size: 0.85rem;
 }
 .item-value {
-  margin: 0.25rem 0 0;
-  font-weight: 700;
-  color: #34d399;
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+.detail-value-row {
+  align-items: center;
+}
+.value-link {
+  margin-left: auto;
+  color: var(--primary-hover);
+  text-decoration: none;
+  font-size: 1rem;
 }
 .value-toggle {
   display: inline-flex;

@@ -319,15 +319,17 @@ export function Collection({ session }: { session: Session }) {
         )}
       </div>
 
-      <p className="result-count">
-        {visible.length}{" "}
-        {visible.length === 1
-          ? TYPE_LABELS[activeType].replace(/s$/, "").toLowerCase()
-          : TYPE_LABELS[activeType].toLowerCase()}
-        {showValues && activeType === "game" && totalValue > 0
-          ? ` • ${formatMoney(totalValue)} value`
-          : ""}
-      </p>
+      <div className="result-count">
+        <span>
+          {visible.length}{" "}
+          {visible.length === 1
+            ? TYPE_LABELS[activeType].replace(/s$/, "").toLowerCase()
+            : TYPE_LABELS[activeType].toLowerCase()}
+        </span>
+        {showValues && activeType === "game" && totalValue > 0 && (
+          <span>{formatMoney(totalValue)} value</span>
+        )}
+      </div>
 
       {error && (
         <p className="error banner" onClick={() => setError(null)}>

@@ -3,7 +3,7 @@ import type { Item, Market } from "../types";
 import { TYPE_LABELS, STATUS_LABELS, CONDITION_LABELS } from "../types";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { ImageLightbox } from "./ImageLightbox";
-import { formatMoney } from "../lib/pricecharting";
+import { formatMoney, headlineValue } from "../lib/pricecharting";
 
 // Read-only detail view for an item. Tap the cover to view it larger.
 export function ItemDetail({
@@ -24,6 +24,9 @@ export function ItemDetail({
   const [market, setMarket] = useState<Market | null>(item.market);
   const [refreshing, setRefreshing] = useState(false);
   const fields = detailFields(item);
+  const conditionValue = item.condition ? headlineValue(market, item.condition) : null;
+  const showValueRow =
+    item.type === "game" && !!item.condition && (conditionValue != null || refreshing);
 
   // Refresh this game's market value when the detail opens (one at a time).
   useEffect(() => {
@@ -72,7 +75,7 @@ export function ItemDetail({
             </div>
           </div>
 
-          {fields.length > 0 && (
+          {(fields.length > 0 || showValueRow) && (
             <dl className="detail-fields">
               {fields.map((f) => (
                 <div key={f.label} className="detail-row">
@@ -80,6 +83,31 @@ export function ItemDetail({
                   <dd>{f.value}</dd>
                 </div>
               ))}
+              {showValueRow && (
+                <div className="detail-row detail-value-row">
+                  <dt>Value</dt>
+                  <dd>
+                    {conditionValue != null ? formatMoney(conditionValue) : "updating…"}
+                    {conditionValue != null && market?.updatedAt ? (
+                      <span className="muted">
+                        {" · updated "}
+                        {new Date(market.updatedAt).toLocaleDateString()}
+                      </span>
+                    ) : null}
+                  </dd>
+                  {market?.url && (
+                    <a
+                      className="value-link"
+                      href={market.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="View on PriceCharting"
+                    >
+                      ↗
+                    </a>
+                  )}
+                </div>
+              )}
             </dl>
           )}
 
@@ -87,37 +115,6 @@ export function ItemDetail({
             <div className="detail-notes">
               <dt>Notes</dt>
               <dd>{item.notes}</dd>
-            </div>
-          )}
-
-          {item.type === "game" && (market || refreshing) && (
-            <div className="detail-notes">
-              <dt>
-                Market value
-                {refreshing
-                  ? " · updating…"
-                  : market?.updatedAt
-                    ? ` · ${new Date(market.updatedAt).toLocaleDateString()}`
-                    : ""}
-              </dt>
-              <dd>
-                {market ? (
-                  <>
-                    Loose {formatMoney(market.loose) ?? "—"} · CIB {formatMoney(market.cib) ?? "—"} ·
-                    New {formatMoney(market.new) ?? "—"}
-                    {market.url ? (
-                      <>
-                        {" · "}
-                        <a href={market.url} target="_blank" rel="noreferrer">
-                          PriceCharting ↗
-                        </a>
-                      </>
-                    ) : null}
-                  </>
-                ) : (
-                  "Fetching current value…"
-                )}
-              </dd>
             </div>
           )}
 

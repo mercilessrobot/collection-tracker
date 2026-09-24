@@ -779,7 +779,7 @@ label {
   margin: 0;
   white-space: pre-wrap;
 }
-.detail-actions .spacer {
+.modal-actions .spacer {
   flex: 1;
 }
 

@@ -32,12 +32,14 @@ export function ItemForm({
   defaultStatus = "owned",
   onCancel,
   onSave,
+  onDelete,
 }: {
   type: ItemType;
   initial: Item | null;
   defaultStatus?: ItemStatus;
   onCancel: () => void;
   onSave: (draft: ItemDraft, id?: string) => Promise<string | null>;
+  onDelete?: () => void | Promise<void>;
 }) {
   useLockBodyScroll();
   const [title, setTitle] = useState(initial?.title ?? "");
@@ -424,6 +426,12 @@ export function ItemForm({
 
         {saveError && <p className="error">{saveError}</p>}
         <div className="modal-actions">
+          {initial && onDelete && (
+            <button type="button" className="ghost danger" onClick={() => onDelete()}>
+              Delete
+            </button>
+          )}
+          <span className="spacer" />
           <button type="button" className="ghost" onClick={onCancel}>
             Cancel
           </button>

@@ -353,6 +353,17 @@ export function Collection({ session }: { session: Session }) {
             setEditing(null);
           }}
           onSave={handleSave}
+          onDelete={
+            editing
+              ? async () => {
+                  const target = editing;
+                  if (await handleDelete(target)) {
+                    setShowForm(false);
+                    setEditing(null);
+                  }
+                }
+              : undefined
+          }
         />
       )}
 
@@ -363,9 +374,6 @@ export function Collection({ session }: { session: Session }) {
           onEdit={(it) => {
             setViewing(null);
             startEdit(it);
-          }}
-          onDelete={async (it) => {
-            if (await handleDelete(it)) setViewing(null);
           }}
           onRefreshValue={refreshValue}
         />

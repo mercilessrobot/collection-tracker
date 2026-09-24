@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../supabase";
 import type { Item, ItemDraft, ItemType } from "../types";
-import { TYPE_LABELS, TYPE_EMOJI, STATUS_LABELS } from "../types";
+import { TYPE_LABELS, TYPE_EMOJI } from "../types";
 import { ItemForm } from "./ItemForm";
 import { ItemDetail } from "./ItemDetail";
 
@@ -32,6 +32,7 @@ export function Collection({ session }: { session: Session }) {
   const [filterValue, setFilterValue] = useState("");
   const [sectionOpen, setSectionOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [view, setView] = useState<"collection" | "wishlist">("collection");
 
   // Reset the format/platform filter when switching tabs.
   useEffect(() => {
@@ -55,9 +56,12 @@ export function Collection({ session }: { session: Session }) {
 
   const counts = useMemo(() => {
     const c: Record<ItemType, number> = { game: 0, movie: 0, book: 0 };
-    for (const item of items) c[item.type]++;
+    for (const item of items) {
+      const inView = view === "wishlist" ? item.status === "wishlist" : item.status !== "wishlist";
+      if (inView) c[item.type]++;
+    }
     return c;
-  }, [items]);
+  }, [items, view]);
 
   // Distinct platforms (games) / formats (movies) present, for the filter menu.
   const filterOptions = useMemo(() => {
@@ -65,15 +69,20 @@ export function Collection({ session }: { session: Session }) {
     const key = activeType === "game" ? "platform" : "format";
     const values = new Set<string>();
     for (const i of items) {
+      const inView = view === "wishlist" ? i.status === "wishlist" : i.status !== "wishlist";
       const v = i[key];
-      if (i.type === activeType && v) values.add(v);
+      if (i.type === activeType && inView && v) values.add(v);
     }
     return [...values].sort((a, b) => a.localeCompare(b));
-  }, [items, activeType]);
+  }, [items, activeType, view]);
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
-    let list = items.filter((i) => i.type === activeType);
+    let list = items.filter(
+      (i) =>
+        i.type === activeType &&
+        (view === "wishlist" ? i.status === "wishlist" : i.status !== "wishlist")
+    );
 
     if (q) {
       list = list.filter((i) =>
@@ -114,7 +123,7 @@ export function Collection({ session }: { session: Session }) {
         break; // "added" keeps the loaded newest-first order
     }
     return sorted;
-  }, [items, activeType, search, filterValue, sort]);
+  }, [items, activeType, search, filterValue, sort, view]);
 
   async function handleSave(draft: ItemDraft, id?: string): Promise<string | null> {
     if (id) {
@@ -165,7 +174,8 @@ export function Collection({ session }: { session: Session }) {
             aria-expanded={sectionOpen}
           >
             <span className="section-title">
-              {TYPE_EMOJI[activeType]} {TYPE_LABELS[activeType].replace(/s$/, "")} Collection
+              {TYPE_EMOJI[activeType]} {TYPE_LABELS[activeType].replace(/s$/, "")}{" "}
+              {view === "wishlist" ? "Wishlist" : "Collection"}
             </span>
             <span className="chev" aria-hidden="true">
               ▾
@@ -211,6 +221,16 @@ export function Collection({ session }: { session: Session }) {
               <div className="popover-backdrop" onClick={() => setMenuOpen(false)} />
               <div className="popover app-menu" role="menu">
                 <div className="app-menu-email">{session.user.email}</div>
+                <button
+                  className="popover-item"
+                  role="menuitem"
+                  onClick={() => {
+                    setView((v) => (v === "wishlist" ? "collection" : "wishlist"));
+                    setMenuOpen(false);
+                  }}
+                >
+                  {view === "wishlist" ? "Collection" : "Wishlist"}
+                </button>
                 <button
                   className="popover-item"
                   role="menuitem"
@@ -268,7 +288,9 @@ export function Collection({ session }: { session: Session }) {
           <p className="muted">Loading your collection…</p>
         ) : visible.length === 0 ? (
           <p className="muted empty">
-            Nothing here yet. Tap “+ Add {activeType}” to add your first one.
+            {view === "wishlist"
+              ? `No ${TYPE_LABELS[activeType].toLowerCase()} on your wishlist yet.`
+              : `No ${TYPE_LABELS[activeType].toLowerCase()} yet — tap + to add one.`}
           </p>
         ) : (
           visible.map((item) => (
@@ -296,6 +318,7 @@ export function Collection({ session }: { session: Session }) {
         <ItemForm
           type={activeType}
           initial={editing}
+          defaultStatus={view === "wishlist" ? "wishlist" : "owned"}
           onCancel={() => {
             setShowForm(false);
             setEditing(null);
@@ -340,10 +363,18 @@ function ItemCard({ item, onOpen }: { item: Item; onOpen: (i: Item) => void }) {
         {subtitle && <p className="item-sub">{subtitle}</p>}
         <p className="item-meta">
           {item.year ?? ""}
-          {item.year && " · "}
-          <span className={`status status-${item.status}`}>{STATUS_LABELS[item.status]}</span>
-          {item.rating ? <span className="rating"> · {"★".repeat(item.rating)}</span> : null}
-          {item.type === "movie" && item.format ? <span> · {item.format}</span> : null}
+          {item.rating ? (
+            <span className="rating">
+              {item.year ? " · " : ""}
+              {"★".repeat(item.rating)}
+            </span>
+          ) : null}
+          {item.type === "movie" && item.format ? (
+            <span>
+              {item.year || item.rating ? " · " : ""}
+              {item.format}
+            </span>
+          ) : null}
         </p>
       </div>
     </article>

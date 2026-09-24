@@ -22,16 +22,18 @@ import { normalizeImage } from "../lib/image";
 
 const CropModal = lazy(() => import("./CropModal").then((m) => ({ default: m.CropModal })));
 
-const STATUSES: ItemStatus[] = ["owned", "wishlist", "in_progress", "done"];
+const STATUSES: ItemStatus[] = ["owned", "wishlist"];
 
 export function ItemForm({
   type,
   initial,
+  defaultStatus = "owned",
   onCancel,
   onSave,
 }: {
   type: ItemType;
   initial: Item | null;
+  defaultStatus?: ItemStatus;
   onCancel: () => void;
   onSave: (draft: ItemDraft, id?: string) => Promise<string | null>;
 }) {
@@ -42,7 +44,7 @@ export function ItemForm({
   const [platform, setPlatform] = useState(initial?.platform ?? "");
   const [format, setFormat] = useState(initial?.format ?? "");
   const [year, setYear] = useState(initial?.year?.toString() ?? "");
-  const [status, setStatus] = useState<ItemStatus>(initial?.status ?? "owned");
+  const [status, setStatus] = useState<ItemStatus>(initial?.status ?? defaultStatus);
   const [rating, setRating] = useState(initial?.rating ?? 0);
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [coverUrl, setCoverUrl] = useState(initial?.cover_url ?? "");
@@ -186,7 +188,7 @@ export function ItemForm({
           </div>
         )}
 
-        {type === "movie" &&
+        {!initial && type === "movie" &&
           (hasTmdb ? (
             <LookupBox
               label="Search movies to auto-fill (TMDB)"
@@ -202,7 +204,7 @@ export function ItemForm({
             </p>
           ))}
 
-        {type === "game" &&
+        {!initial && type === "game" &&
           (hasRawg ? (
             <LookupBox
               label="Search games to auto-fill (RAWG)"

@@ -6,6 +6,7 @@ import { TYPE_LABELS, TYPE_EMOJI } from "../types";
 import { ItemForm } from "./ItemForm";
 import { ItemDetail } from "./ItemDetail";
 import { headlineValue, formatMoney, fetchGameValue } from "../lib/pricecharting";
+import { useTiltShine } from "../hooks/useTiltShine";
 
 const TYPES: ItemType[] = ["game", "movie", "book"];
 
@@ -35,6 +36,7 @@ export function Collection({ session }: { session: Session }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [view, setView] = useState<"collection" | "wishlist">("collection");
   const [showValues, setShowValues] = useState(false);
+  const shine = useTiltShine();
 
   // Reset the format/platform filter when switching tabs.
   useEffect(() => {
@@ -250,6 +252,18 @@ export function Collection({ session }: { session: Session }) {
                 >
                   {view === "wishlist" ? "Collection" : "Wishlist"}
                 </button>
+                {shine.supported && (
+                  <button
+                    className="popover-item"
+                    role="menuitem"
+                    onClick={() => {
+                      shine.toggle();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {shine.enabled ? "Card shine · on" : "Card shine"}
+                  </button>
+                )}
                 <button
                   className="popover-item"
                   role="menuitem"

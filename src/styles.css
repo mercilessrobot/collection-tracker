@@ -158,7 +158,7 @@ label {
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  background: var(--bg);
+  background: #0c1222; /* ~20% darker than --bg (#0f172a) */
   z-index: 5;
 }
 .topbar-right {

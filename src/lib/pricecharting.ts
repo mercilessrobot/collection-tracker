@@ -42,14 +42,25 @@ export function formatMoney(cents: number | null | undefined): string | null {
   );
 }
 
-// Value for the copy you own (its condition); falls back to loose→cib→new.
+// Value for the copy you own: a manual override wins; otherwise the price for
+// the given condition, falling back to loose→cib→new.
 export function headlineValue(
   m: Market | null | undefined,
   condition?: string | null
 ): number | null {
   if (!m) return null;
+  if (m.custom != null) return m.custom;
   if (condition === "loose") return m.loose ?? null;
   if (condition === "cib") return m.cib ?? null;
   if (condition === "new") return m.new ?? null;
   return m.loose ?? m.cib ?? m.new ?? null;
+}
+
+export function dollarsToCents(s: string): number | null {
+  const n = parseFloat(s);
+  return s.trim() !== "" && !Number.isNaN(n) ? Math.round(n * 100) : null;
+}
+
+export function centsToDollars(cents: number | null | undefined): string {
+  return cents == null ? "" : (cents / 100).toFixed(2);
 }

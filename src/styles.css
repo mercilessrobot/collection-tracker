@@ -412,6 +412,26 @@ label {
   width: auto;
   margin: 0;
 }
+.link-btn {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  padding: 0.35rem 0 0;
+  color: var(--primary-hover);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.link-btn:hover {
+  text-decoration: underline;
+  border-color: transparent;
+}
+.value-prefix {
+  color: var(--muted);
+}
+.custom-value-input {
+  margin-top: 0;
+  width: 8rem;
+}
 .toolbar .primary {
   white-space: nowrap;
 }

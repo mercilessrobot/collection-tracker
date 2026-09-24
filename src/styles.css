@@ -158,8 +158,19 @@ label {
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  background: #0c1222; /* ~20% darker than --bg (#0f172a) */
+  background: transparent;
   z-index: 5;
+}
+/* Frosted tint + blur behind the header, via a pseudo-element so the header
+   itself doesn't become a containing block for the menu popovers' fixed layer. */
+.topbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(12, 18, 34, 0.72); /* ~20% darker than --bg, semi-transparent */
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
 .topbar-right {
   display: flex;

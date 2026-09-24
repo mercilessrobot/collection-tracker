@@ -188,6 +188,7 @@ export function ItemForm({
                   onChange={(e) => setIsbn(e.target.value)}
                   placeholder="9780…"
                   inputMode="numeric"
+                  autoFocus
                 />
                 <button
                   type="button"

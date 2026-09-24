@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { LookupResult } from "../lib/lookup";
 import { ScanButton } from "./ScanButton";
 
@@ -24,6 +24,23 @@ export function LookupBox({
   const [results, setResults] = useState<LookupResult[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Close the results when focus or a tap moves outside this lookup box.
+  useEffect(() => {
+    if (!results) return;
+    const onOutside = (e: Event) => {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
+        setResults(null);
+      }
+    };
+    document.addEventListener("pointerdown", onOutside);
+    document.addEventListener("focusin", onOutside);
+    return () => {
+      document.removeEventListener("pointerdown", onOutside);
+      document.removeEventListener("focusin", onOutside);
+    };
+  }, [results]);
 
   async function runSearch(query?: string) {
     const term = (query ?? q).trim();
@@ -76,13 +93,19 @@ export function LookupBox({
   }
 
   return (
-    <div className="isbn-lookup">
+    <div className="isbn-lookup" ref={boxRef}>
       <label>
         {label}
         <div className="isbn-row">
           <input
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => {
+              setQ(e.target.value);
+              if (!e.target.value.trim()) {
+                setResults(null);
+                setError(null);
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();

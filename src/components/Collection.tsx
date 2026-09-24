@@ -387,7 +387,10 @@ function ItemCard({
     item.type === "game"
       ? [item.publisher, item.platform].filter(Boolean).join(" · ") || item.creator
       : item.creator;
-  const value = showValue && item.type === "game" ? formatMoney(headlineValue(item.market)) : null;
+  const value =
+    showValue && item.type === "game"
+      ? formatMoney(headlineValue(item.market, item.condition))
+      : null;
   return (
     <article className="item-card clickable" onClick={() => onOpen(item)}>
       <div className="cover">

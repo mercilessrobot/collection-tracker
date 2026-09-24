@@ -7,6 +7,7 @@ import {
   MOVIE_FORMATS,
   PLATFORM_GROUPS,
   PLATFORMS,
+  GAME_CONDITIONS,
 } from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
 import { LookupBox } from "./LookupBox";
@@ -44,6 +45,7 @@ export function ItemForm({
   const [publisher, setPublisher] = useState(initial?.publisher ?? "");
   const [platform, setPlatform] = useState(initial?.platform ?? "");
   const [format, setFormat] = useState(initial?.format ?? "");
+  const [condition, setCondition] = useState(initial?.condition ?? "");
   const [year, setYear] = useState(initial?.year?.toString() ?? "");
   const [status, setStatus] = useState<ItemStatus>(initial?.status ?? defaultStatus);
   const [rating, setRating] = useState(initial?.rating ?? 0);
@@ -149,6 +151,7 @@ export function ItemForm({
       creator: creator.trim() || null,
       publisher: publisher.trim() || null,
       platform: platform.trim() || null,
+      condition: type === "game" ? condition || null : null,
       format: format.trim() || null,
       year: year ? Number(year) : null,
       status,
@@ -370,6 +373,20 @@ export function ItemForm({
           …or paste an image URL
           <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…" />
         </label>
+
+        {type === "game" && (
+          <label>
+            Condition
+            <select value={condition} onChange={(e) => setCondition(e.target.value)}>
+              <option value="">—</option>
+              {GAME_CONDITIONS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         {type === "game" && (
           <div className="field">

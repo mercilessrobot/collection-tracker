@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Item, Market } from "../types";
-import { TYPE_LABELS, STATUS_LABELS } from "../types";
+import { TYPE_LABELS, STATUS_LABELS, CONDITION_LABELS } from "../types";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { ImageLightbox } from "./ImageLightbox";
 import { formatMoney } from "../lib/pricecharting";
@@ -147,6 +147,8 @@ function detailFields(item: Item): { label: string; value: string }[] {
   if (item.type === "game") {
     if (item.publisher) f.push({ label: "Publisher", value: item.publisher });
     if (item.platform) f.push({ label: "Platform", value: item.platform });
+    if (item.condition)
+      f.push({ label: "Condition", value: CONDITION_LABELS[item.condition] ?? item.condition });
     if (!item.publisher && !item.platform && item.creator)
       f.push({ label: "Developer", value: item.creator });
   } else {

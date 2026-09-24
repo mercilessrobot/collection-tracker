@@ -42,8 +42,14 @@ export function formatMoney(cents: number | null | undefined): string | null {
   );
 }
 
-// Single headline value for a card: CIB, then loose, then new.
-export function headlineValue(m: Market | null | undefined): number | null {
+// Value for the copy you own (its condition); falls back to loose→cib→new.
+export function headlineValue(
+  m: Market | null | undefined,
+  condition?: string | null
+): number | null {
   if (!m) return null;
-  return m.cib ?? m.loose ?? m.new ?? null;
+  if (condition === "loose") return m.loose ?? null;
+  if (condition === "cib") return m.cib ?? null;
+  if (condition === "new") return m.new ?? null;
+  return m.loose ?? m.cib ?? m.new ?? null;
 }

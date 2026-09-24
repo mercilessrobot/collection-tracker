@@ -21,6 +21,7 @@ export interface Item {
   creator: string | null; // author (book) / director (movie)
   publisher: string | null; // game
   platform: string | null; // game
+  condition: string | null; // game: loose / cib / new (which copy you own)
   format: string | null; // movie: DVD / VHS / Blu-Ray / 4K Blu-Ray
   year: number | null;
   status: ItemStatus;
@@ -41,6 +42,7 @@ export type ItemDraft = Pick<
   | "creator"
   | "publisher"
   | "platform"
+  | "condition"
   | "format"
   | "year"
   | "status"
@@ -79,6 +81,18 @@ export const CREATOR_LABELS: Record<ItemType, string> = {
 };
 
 export const MOVIE_FORMATS = ["DVD", "VHS", "Blu-Ray", "4K Blu-Ray"] as const;
+
+// Game condition — which copy you own; drives which PriceCharting price shows.
+export const GAME_CONDITIONS: { value: string; label: string }[] = [
+  { value: "loose", label: "Loose" },
+  { value: "cib", label: "CIB" },
+  { value: "new", label: "New (sealed)" },
+];
+export const CONDITION_LABELS: Record<string, string> = {
+  loose: "Loose",
+  cib: "CIB",
+  new: "New (sealed)",
+};
 
 // Major gaming platforms, grouped by maker for the game Platform picker.
 export const PLATFORM_GROUPS: { label: string; options: string[] }[] = [

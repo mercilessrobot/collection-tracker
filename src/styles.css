@@ -333,6 +333,9 @@ label {
   gap: 0.5rem;
   padding: 0.4rem;
   background: var(--surface);
+  /* Clip the fill to the padding box so the translucent border shows the page
+     behind it (otherwise the surface fills under the border and it looks solid). */
+  background-clip: padding-box;
   border: 6px solid rgba(255, 255, 255, 0.05);
   border-radius: 999px;
   box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
@@ -342,7 +345,7 @@ label {
   min-width: 0;
   height: 2.6rem;
   margin-top: 0;
-  border: 3px solid rgba(255, 255, 255, 0.05);
+  border: 3px solid rgba(255, 255, 255, 0.15);
   background: transparent;
   padding-left: 1rem;
   border-radius: 999px;

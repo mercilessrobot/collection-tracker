@@ -171,6 +171,7 @@ export function Collection({ session }: { session: Session }) {
   // Refresh one game's market value (called when its detail view opens).
   async function refreshValue(item: Item): Promise<Market | null> {
     if (item.type !== "game") return null;
+    if (item.market?.custom != null) return null; // manual value set — skip PriceCharting
     try {
       const m = await fetchGameValue(item.title, item.platform);
       const { error } = await supabase
@@ -421,7 +422,7 @@ function ItemCard({
       ? [item.publisher, item.platform].filter(Boolean).join(" · ") || item.creator
       : item.creator;
   const value =
-    showValue && item.type === "game" && item.condition
+    showValue && item.type === "game" && (item.condition || item.market?.custom != null)
       ? formatMoney(headlineValue(item.market, item.condition))
       : null;
   return (

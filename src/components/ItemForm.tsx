@@ -20,7 +20,7 @@ import { hasTmdb, hasRawg } from "../config";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { uploadCover } from "../lib/storage";
 import { normalizeImage } from "../lib/image";
-import { fetchGameValue, formatMoney } from "../lib/pricecharting";
+import { fetchGameValue, formatMoney, dollarsToCents, centsToDollars } from "../lib/pricecharting";
 
 const CropModal = lazy(() => import("./CropModal").then((m) => ({ default: m.CropModal })));
 
@@ -64,6 +64,8 @@ export function ItemForm({
   const [market, setMarket] = useState<Market | null>(initial?.market ?? null);
   const [valueBusy, setValueBusy] = useState(false);
   const [valueError, setValueError] = useState<string | null>(null);
+  const [useCustom, setUseCustom] = useState(initial?.market?.custom != null);
+  const [customValue, setCustomValue] = useState(centsToDollars(initial?.market?.custom));
 
   const [isbn, setIsbn] = useState("");
   const [lookupBusy, setLookupBusy] = useState(false);
@@ -147,6 +149,26 @@ export function ItemForm({
     e.preventDefault();
     setSaving(true);
     setSaveError(null);
+
+    let marketToSave: Market | null = null;
+    if (type === "game") {
+      const customCents = useCustom ? dollarsToCents(customValue) : null;
+      if (customCents != null) {
+        marketToSave = {
+          loose: market?.loose ?? null,
+          cib: market?.cib ?? null,
+          new: market?.new ?? null,
+          url: market?.url ?? null,
+          matchedTitle: market?.matchedTitle ?? null,
+          matchedConsole: market?.matchedConsole ?? null,
+          custom: customCents,
+          updatedAt: new Date().toISOString(),
+        };
+      } else if (market) {
+        marketToSave = { ...market, custom: null };
+      }
+    }
+
     const draft: ItemDraft = {
       type,
       title: title.trim(),
@@ -161,7 +183,7 @@ export function ItemForm({
       notes: notes.trim() || null,
       cover_url: coverUrl.trim() || null,
       identifier: identifier.trim() || null,
-      market: type === "game" ? market : null,
+      market: marketToSave,
     };
     const err = await onSave(draft, initial?.id);
     if (err) setSaveError(err);
@@ -393,28 +415,61 @@ export function ItemForm({
 
         {type === "game" && (
           <div className="field">
-            <span className="field-label">Market value (PriceCharting)</span>
-            <div className="value-row">
-              <button
-                type="button"
-                className="ghost"
-                onClick={handleFetchValue}
-                disabled={valueBusy || !title.trim()}
-              >
-                {valueBusy ? "Fetching…" : market ? "Refresh value" : "Fetch value"}
-              </button>
-              {market && (
-                <span className="value-summary">
-                  Loose {formatMoney(market.loose) ?? "—"} · CIB {formatMoney(market.cib) ?? "—"} · New{" "}
-                  {formatMoney(market.new) ?? "—"}
-                </span>
-              )}
-            </div>
-            {market?.matchedTitle && (
-              <p className="muted small-hint">
-                Matched: {market.matchedTitle}
-                {market.matchedConsole ? ` (${market.matchedConsole})` : ""}
-              </p>
+            <span className="field-label">Market value</span>
+            {useCustom ? (
+              <>
+                <div className="value-row">
+                  <span className="value-prefix">$</span>
+                  <input
+                    className="custom-value-input"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={customValue}
+                    onChange={(e) => setCustomValue(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="link-btn"
+                  onClick={() => {
+                    setUseCustom(false);
+                    setCustomValue("");
+                  }}
+                >
+                  Use PriceCharting instead
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="value-row">
+                  <button
+                    type="button"
+                    className="ghost"
+                    onClick={handleFetchValue}
+                    disabled={valueBusy || !title.trim()}
+                  >
+                    {valueBusy ? "Fetching…" : market ? "Refresh value" : "Fetch value"}
+                  </button>
+                  {market && (
+                    <span className="value-summary">
+                      Loose {formatMoney(market.loose) ?? "—"} · CIB {formatMoney(market.cib) ?? "—"} ·
+                      New {formatMoney(market.new) ?? "—"}
+                    </span>
+                  )}
+                </div>
+                {market?.matchedTitle && (
+                  <p className="muted small-hint">
+                    Matched: {market.matchedTitle}
+                    {market.matchedConsole ? ` (${market.matchedConsole})` : ""}
+                  </p>
+                )}
+                <button type="button" className="link-btn" onClick={() => setUseCustom(true)}>
+                  Custom value
+                </button>
+              </>
             )}
             {valueError && <p className="error">{valueError}</p>}
           </div>

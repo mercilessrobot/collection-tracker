@@ -22,9 +22,11 @@ export function ItemDetail({
   const [market, setMarket] = useState<Market | null>(item.market);
   const [refreshing, setRefreshing] = useState(false);
   const fields = detailFields(item);
-  const conditionValue = item.condition ? headlineValue(market, item.condition) : null;
+  const conditionValue = headlineValue(market, item.condition);
   const showValueRow =
-    item.type === "game" && !!item.condition && (conditionValue != null || refreshing);
+    item.type === "game" &&
+    (!!item.condition || market?.custom != null) &&
+    (conditionValue != null || refreshing);
 
   // Refresh this game's market value when the detail opens (one at a time).
   useEffect(() => {
@@ -93,14 +95,17 @@ export function ItemDetail({
                   <dt>Value</dt>
                   <dd>
                     {conditionValue != null ? formatMoney(conditionValue) : "updating…"}
-                    {conditionValue != null && market?.updatedAt ? (
-                      <span className="muted">
-                        {" · updated "}
-                        {new Date(market.updatedAt).toLocaleDateString()}
-                      </span>
-                    ) : null}
+                    {conditionValue != null &&
+                      (market?.custom != null ? (
+                        <span className="muted"> · custom</span>
+                      ) : market?.updatedAt ? (
+                        <span className="muted">
+                          {" · updated "}
+                          {new Date(market.updatedAt).toLocaleDateString()}
+                        </span>
+                      ) : null)}
                   </dd>
-                  {market?.url && (
+                  {market?.url && market?.custom == null && (
                     <a
                       className="value-link"
                       href={market.url}

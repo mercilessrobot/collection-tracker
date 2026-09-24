@@ -10,6 +10,7 @@ export interface Market {
   url: string | null;
   matchedTitle?: string | null;
   matchedConsole?: string | null;
+  custom?: number | null; // manual override (cents); when set, no PriceCharting fetch
   updatedAt: string;
 }
 

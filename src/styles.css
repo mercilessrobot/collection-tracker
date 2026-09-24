@@ -338,7 +338,7 @@ label {
   transform: translateX(-50%);
   bottom: calc(1rem + env(safe-area-inset-bottom));
   z-index: 15;
-  width: min(600px, calc(100% - 10px));
+  width: auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -364,6 +364,19 @@ label {
 .floating-bar .search:focus {
   outline: none;
   background: var(--bg);
+}
+.floating-bar.expanded {
+  width: min(600px, calc(100% - 10px));
+}
+.search-icon {
+  flex: 0 0 auto;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border-radius: 999px;
+  border-color: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .value-row {

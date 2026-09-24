@@ -48,6 +48,9 @@ export function ItemDetail({
     <>
       <div className="modal-backdrop" onClick={onClose}>
         <div className="card modal detail" onClick={(e) => e.stopPropagation()}>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
           <div className="detail-header">
             {item.cover_url ? (
               <button
@@ -66,10 +69,14 @@ export function ItemDetail({
             <div className="detail-headtext">
               <h2>{item.title}</h2>
               <p className="muted detail-type">{TYPE_LABELS[item.type].replace(/s$/, "")}</p>
-              <p className="detail-badges">
-                <span className={`status status-${item.status}`}>{STATUS_LABELS[item.status]}</span>
-                {item.rating ? <span className="rating">{"★".repeat(item.rating)}</span> : null}
-              </p>
+              {(item.status === "wishlist" || item.rating) && (
+                <p className="detail-badges">
+                  {item.status === "wishlist" && (
+                    <span className="status status-wishlist">{STATUS_LABELS.wishlist}</span>
+                  )}
+                  {item.rating ? <span className="rating">{"★".repeat(item.rating)}</span> : null}
+                </p>
+              )}
             </div>
           </div>
 
@@ -117,13 +124,10 @@ export function ItemDetail({
           )}
 
           <div className="modal-actions detail-actions">
-            <button type="button" className="ghost" onClick={onClose}>
-              Close
-            </button>
-            <span className="spacer" />
             <button type="button" className="primary" onClick={() => onEdit(item)}>
               Edit
             </button>
+            <span className="spacer" />
           </div>
         </div>
       </div>

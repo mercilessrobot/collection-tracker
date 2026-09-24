@@ -3,6 +3,16 @@ export type ItemType = "game" | "movie" | "book";
 // Matches the `status` values allowed by the database check constraint.
 export type ItemStatus = "owned" | "wishlist" | "in_progress" | "done";
 
+export interface Market {
+  loose: number | null; // cents
+  cib: number | null;
+  new: number | null;
+  url: string | null;
+  matchedTitle?: string | null;
+  matchedConsole?: string | null;
+  updatedAt: string;
+}
+
 export interface Item {
   id: string;
   user_id: string;
@@ -18,6 +28,7 @@ export interface Item {
   notes: string | null;
   cover_url: string | null;
   identifier: string | null; // ISBN / barcode / external id
+  market: Market | null; // game market value (PriceCharting), in cents
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +48,7 @@ export type ItemDraft = Pick<
   | "notes"
   | "cover_url"
   | "identifier"
+  | "market"
 >;
 
 export const TYPE_LABELS: Record<ItemType, string> = {

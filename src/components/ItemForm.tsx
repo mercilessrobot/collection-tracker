@@ -1,5 +1,5 @@
 import { useState, useRef, lazy, Suspense, type FormEvent, type ChangeEvent } from "react";
-import type { Item, ItemDraft, ItemStatus, ItemType } from "../types";
+import type { Item, ItemDraft, ItemStatus, ItemType, Market } from "../types";
 import {
   STATUS_LABELS,
   CREATOR_LABELS,
@@ -19,6 +19,7 @@ import { hasTmdb, hasRawg } from "../config";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { uploadCover } from "../lib/storage";
 import { normalizeImage } from "../lib/image";
+import { fetchGameValue, formatMoney } from "../lib/pricecharting";
 
 const CropModal = lazy(() => import("./CropModal").then((m) => ({ default: m.CropModal })));
 
@@ -56,6 +57,9 @@ export function ItemForm({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [market, setMarket] = useState<Market | null>(initial?.market ?? null);
+  const [valueBusy, setValueBusy] = useState(false);
+  const [valueError, setValueError] = useState<string | null>(null);
 
   const [isbn, setIsbn] = useState("");
   const [lookupBusy, setLookupBusy] = useState(false);
@@ -113,6 +117,18 @@ export function ItemForm({
     setCropSrc(null);
   }
 
+  async function handleFetchValue() {
+    setValueBusy(true);
+    setValueError(null);
+    try {
+      setMarket(await fetchGameValue(title.trim(), platform || null));
+    } catch (e) {
+      setValueError(e instanceof Error ? e.message : "Value lookup failed.");
+    } finally {
+      setValueBusy(false);
+    }
+  }
+
   // Fill the form fields from a picked search result (movies / games).
   function applyResult(r: LookupResult) {
     setTitle(r.title);
@@ -140,6 +156,7 @@ export function ItemForm({
       notes: notes.trim() || null,
       cover_url: coverUrl.trim() || null,
       identifier: identifier.trim() || null,
+      market: type === "game" ? market : null,
     };
     const err = await onSave(draft, initial?.id);
     if (err) setSaveError(err);
@@ -353,6 +370,35 @@ export function ItemForm({
           …or paste an image URL
           <input value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…" />
         </label>
+
+        {type === "game" && (
+          <div className="field">
+            <span className="field-label">Market value (PriceCharting)</span>
+            <div className="value-row">
+              <button
+                type="button"
+                className="ghost"
+                onClick={handleFetchValue}
+                disabled={valueBusy || !title.trim()}
+              >
+                {valueBusy ? "Fetching…" : market ? "Refresh value" : "Fetch value"}
+              </button>
+              {market && (
+                <span className="value-summary">
+                  Loose {formatMoney(market.loose) ?? "—"} · CIB {formatMoney(market.cib) ?? "—"} · New{" "}
+                  {formatMoney(market.new) ?? "—"}
+                </span>
+              )}
+            </div>
+            {market?.matchedTitle && (
+              <p className="muted small-hint">
+                Matched: {market.matchedTitle}
+                {market.matchedConsole ? ` (${market.matchedConsole})` : ""}
+              </p>
+            )}
+            {valueError && <p className="error">{valueError}</p>}
+          </div>
+        )}
 
         <label>
           Notes

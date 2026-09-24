@@ -159,6 +159,25 @@ account. Photos are auto-resized to a small JPEG before upload, so they load
 fast. (Public bucket = anyone with an image's URL can view it, which is fine for
 covers; only you can add or change them.)
 
+## Optional: game market values (PriceCharting)
+
+Games can show an estimated market value (loose / CIB / new) scraped from
+PriceCharting's public search page. This needs a second Edge Function, `price`,
+because their site can't be called from the browser (CORS). **Personal use
+only** — PriceCharting sells an official API, so keep lookups low-volume (they
+run only when you add/edit a game or open its detail view, one at a time).
+
+1. Add the storage column — SQL Editor → run:
+   `alter table public.items add column if not exists market jsonb;`
+2. Deploy the function — Edge Functions → **Deploy a new function → Via Editor**
+   → name it exactly **`price`** → paste
+   [`supabase/functions/price/index.ts`](supabase/functions/price/index.ts) →
+   **Deploy**.
+
+Then: the game form has a **Fetch value** button, opening a game's detail
+refreshes its value, and the **Values** checkbox (next to the platform filter)
+shows the value on each game card.
+
 ## Ideas for later
 
 - Offline support (service worker).

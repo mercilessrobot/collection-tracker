@@ -1,8 +1,9 @@
-import { useState } from "react";
-import type { Item } from "../types";
+import { useState, useEffect } from "react";
+import type { Item, Market } from "../types";
 import { TYPE_LABELS, STATUS_LABELS } from "../types";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { ImageLightbox } from "./ImageLightbox";
+import { formatMoney } from "../lib/pricecharting";
 
 // Read-only detail view for an item. Tap the cover to view it larger.
 export function ItemDetail({
@@ -10,15 +11,37 @@ export function ItemDetail({
   onClose,
   onEdit,
   onDelete,
+  onRefreshValue,
 }: {
   item: Item;
   onClose: () => void;
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
+  onRefreshValue?: (item: Item) => Promise<Market | null>;
 }) {
   useLockBodyScroll();
   const [zoom, setZoom] = useState(false);
+  const [market, setMarket] = useState<Market | null>(item.market);
+  const [refreshing, setRefreshing] = useState(false);
   const fields = detailFields(item);
+
+  // Refresh this game's market value when the detail opens (one at a time).
+  useEffect(() => {
+    if (item.type !== "game" || !onRefreshValue) return;
+    let active = true;
+    setRefreshing(true);
+    onRefreshValue(item)
+      .then((m) => {
+        if (active && m) setMarket(m);
+      })
+      .finally(() => {
+        if (active) setRefreshing(false);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -64,6 +87,37 @@ export function ItemDetail({
             <div className="detail-notes">
               <dt>Notes</dt>
               <dd>{item.notes}</dd>
+            </div>
+          )}
+
+          {item.type === "game" && (market || refreshing) && (
+            <div className="detail-notes">
+              <dt>
+                Market value
+                {refreshing
+                  ? " · updating…"
+                  : market?.updatedAt
+                    ? ` · ${new Date(market.updatedAt).toLocaleDateString()}`
+                    : ""}
+              </dt>
+              <dd>
+                {market ? (
+                  <>
+                    Loose {formatMoney(market.loose) ?? "—"} · CIB {formatMoney(market.cib) ?? "—"} ·
+                    New {formatMoney(market.new) ?? "—"}
+                    {market.url ? (
+                      <>
+                        {" · "}
+                        <a href={market.url} target="_blank" rel="noreferrer">
+                          PriceCharting ↗
+                        </a>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  "Fetching current value…"
+                )}
+              </dd>
             </div>
           )}
 

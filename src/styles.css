@@ -327,7 +327,7 @@ label {
   transform: translateX(-50%);
   bottom: calc(1rem + env(safe-area-inset-bottom));
   z-index: 15;
-  width: min(600px, calc(100% - 1.5rem));
+  width: min(600px, calc(100% - 10px));
   display: flex;
   align-items: center;
   gap: 0.5rem;

@@ -322,11 +322,14 @@ label {
   padding: 0.5rem;
 }
 .result-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
   margin: -0.5rem 0 0;
   padding: 0 1rem 0.5rem;
-  font-size: 10px;
-  color: #a5b4fc;
-  color: color-mix(in srgb, var(--primary), white 50%);
+  font-size: 13px;
+  color: var(--muted);
 }
 .add-btn {
   flex: 0 0 auto;

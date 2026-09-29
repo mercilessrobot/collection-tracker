@@ -399,18 +399,20 @@ label {
   text-decoration: none;
   font-size: 1rem;
 }
-.value-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  margin: 0 0 0 auto;
-  font-size: 0.9rem;
+.value-pill {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border-radius: 999px;
+  font-weight: 700;
   color: var(--muted);
-  white-space: nowrap;
 }
-.value-toggle input {
-  width: auto;
-  margin: 0;
+.value-pill.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
 }
 .link-btn {
   align-self: flex-start;
@@ -450,6 +452,20 @@ label {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
+}
+.chip-add {
+  color: var(--primary-hover);
+  border-style: dashed;
+}
+.chip-sm {
+  padding: 0.12rem 0.45rem;
+  font-size: 0.68rem;
+}
+.card-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
 }
 .toolbar .primary {
   white-space: nowrap;

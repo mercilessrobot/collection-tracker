@@ -31,6 +31,7 @@ export function Collection({ session }: { session: Session }) {
   const [viewing, setViewing] = useState<Item | null>(null);
   const [sort, setSort] = useState<SortKey>("added");
   const [filterValue, setFilterValue] = useState("");
+  const [genreFilter, setGenreFilter] = useState("");
   const [sectionOpen, setSectionOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [view, setView] = useState<"collection" | "wishlist">("collection");
@@ -39,6 +40,7 @@ export function Collection({ session }: { session: Session }) {
   // Reset the format/platform filter when switching tabs.
   useEffect(() => {
     setFilterValue("");
+    setGenreFilter("");
   }, [activeType]);
 
   async function loadItems() {
@@ -78,6 +80,22 @@ export function Collection({ session }: { session: Session }) {
     return [...values].sort((a, b) => a.localeCompare(b));
   }, [items, activeType, view]);
 
+  // Distinct genres present (across all types support genre), for the filter.
+  const genreFilterOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const i of items) {
+      const inView = view === "wishlist" ? i.status === "wishlist" : i.status !== "wishlist";
+      if (i.type === activeType && inView && i.genre) {
+        i.genre
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .forEach((g) => set.add(g));
+      }
+    }
+    return [...set].sort((a, b) => a.localeCompare(b));
+  }, [items, activeType, view]);
+
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     let list = items.filter(
@@ -97,6 +115,17 @@ export function Collection({ session }: { session: Session }) {
     if (filterValue) {
       list = list.filter((i) =>
         activeType === "game" ? i.platform === filterValue : i.format === filterValue
+      );
+    }
+
+    if (genreFilter) {
+      list = list.filter(
+        (i) =>
+          i.genre != null &&
+          i.genre
+            .split(",")
+            .map((s) => s.trim())
+            .includes(genreFilter)
       );
     }
 
@@ -125,7 +154,7 @@ export function Collection({ session }: { session: Session }) {
         break; // "added" keeps the loaded newest-first order
     }
     return sorted;
-  }, [items, activeType, search, filterValue, sort, view]);
+  }, [items, activeType, search, filterValue, genreFilter, sort, view]);
 
   // Summed value of the currently-visible games (for the "Values" total).
   const totalValue = useMemo(() => {
@@ -308,15 +337,31 @@ export function Collection({ session }: { session: Session }) {
             ))}
           </select>
         )}
+        {genreFilterOptions.length > 0 && (
+          <select
+            className="control"
+            value={genreFilter}
+            onChange={(e) => setGenreFilter(e.target.value)}
+            aria-label="Genre filter"
+          >
+            <option value="">All genres</option>
+            {genreFilterOptions.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+        )}
         {activeType === "game" && (
-          <label className="value-toggle">
-            <input
-              type="checkbox"
-              checked={showValues}
-              onChange={(e) => setShowValues(e.target.checked)}
-            />
-            Values
-          </label>
+          <button
+            type="button"
+            className={showValues ? "value-pill on" : "value-pill"}
+            onClick={() => setShowValues((v) => !v)}
+            aria-pressed={showValues}
+            title="Show values"
+          >
+            $
+          </button>
         )}
       </div>
 
@@ -453,6 +498,19 @@ function ItemCard({
           ) : null}
         </p>
         {value && <p className="item-value">Value: {value}</p>}
+        {item.genre && (
+          <div className="card-genres">
+            {item.genre
+              .split(",")
+              .map((g) => g.trim())
+              .filter(Boolean)
+              .map((g) => (
+                <span key={g} className="chip chip-sm">
+                  {g}
+                </span>
+              ))}
+          </div>
+        )}
       </div>
     </article>
   );

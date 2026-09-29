@@ -337,7 +337,7 @@ export function Collection({ session }: { session: Session }) {
             ))}
           </select>
         )}
-        {genreFilterOptions.length > 0 && (
+        {activeType !== "game" && genreFilterOptions.length > 0 && (
           <select
             className="control"
             value={genreFilter}

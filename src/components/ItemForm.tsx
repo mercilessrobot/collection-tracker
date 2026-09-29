@@ -49,7 +49,14 @@ export function ItemForm({
   const [platform, setPlatform] = useState(initial?.platform ?? "");
   const [format, setFormat] = useState(initial?.format ?? "");
   const [condition, setCondition] = useState(initial?.condition ?? "");
-  const [genre, setGenre] = useState(initial?.genre ?? "");
+  const [genres, setGenres] = useState<string[]>(
+    initial?.genre
+      ? initial.genre
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : []
+  );
   const [year, setYear] = useState(initial?.year?.toString() ?? "");
   const [status, setStatus] = useState<ItemStatus>(initial?.status ?? defaultStatus);
   const [rating, setRating] = useState(initial?.rating ?? 0);
@@ -147,6 +154,10 @@ export function ItemForm({
     if (r.sourceId) setIdentifier(r.sourceId);
   }
 
+  function toggleGenre(g: string) {
+    setGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -179,7 +190,7 @@ export function ItemForm({
       platform: platform.trim() || null,
       condition: type === "game" ? condition || null : null,
       format: format.trim() || null,
-      genre: genre || null,
+      genre: genres.length ? genres.join(", ") : null,
       year: year ? Number(year) : null,
       status,
       rating: rating || null,
@@ -311,18 +322,21 @@ export function ItemForm({
           </>
         )}
 
-        <label>
-          Genre
-          <select value={genre} onChange={(e) => setGenre(e.target.value)}>
-            <option value="">—</option>
-            {genre && !GENRES[type].includes(genre) && <option value={genre}>{genre}</option>}
-            {GENRES[type].map((g) => (
-              <option key={g} value={g}>
+        <div className="field">
+          <span className="field-label">Genre</span>
+          <div className="genre-chips">
+            {[...GENRES[type], ...genres.filter((g) => !GENRES[type].includes(g))].map((g) => (
+              <button
+                type="button"
+                key={g}
+                className={genres.includes(g) ? "chip selected" : "chip"}
+                onClick={() => toggleGenre(g)}
+              >
                 {g}
-              </option>
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
 
         {type === "movie" && (
           <label>

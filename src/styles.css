@@ -432,6 +432,25 @@ label {
   margin-top: 0;
   width: 8rem;
 }
+.genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.chip {
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.chip.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
 .toolbar .primary {
   white-space: nowrap;
 }

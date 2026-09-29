@@ -259,3 +259,8 @@ export const GENRES: Record<ItemType, string[]> = {
     "Classics",
   ],
 };
+
+// Keep every genre list alphabetized (new additions sort in automatically).
+for (const genreKey of Object.keys(GENRES) as ItemType[]) {
+  GENRES[genreKey].sort((a, b) => a.localeCompare(b));
+}

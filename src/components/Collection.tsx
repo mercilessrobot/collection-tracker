@@ -32,7 +32,10 @@ export function Collection({ session }: { session: Session }) {
   const [editing, setEditing] = useState<Item | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewing, setViewing] = useState<Item | null>(null);
-  const [sort, setSort] = useState<SortKey>("added");
+  const [sort, setSort] = useState<SortKey>(() => {
+    const saved = localStorage.getItem("sort");
+    return SORT_OPTIONS.some((o) => o.value === saved) ? (saved as SortKey) : "added";
+  });
   const [filterValue, setFilterValue] = useState("");
   const [genreFilter, setGenreFilter] = useState("");
   const [sectionOpen, setSectionOpen] = useState(false);
@@ -50,6 +53,11 @@ export function Collection({ session }: { session: Session }) {
   useEffect(() => {
     localStorage.setItem("activeType", activeType);
   }, [activeType]);
+
+  // Remember the chosen sort order across refreshes.
+  useEffect(() => {
+    localStorage.setItem("sort", sort);
+  }, [sort]);
 
   async function loadItems() {
     setLoading(true);

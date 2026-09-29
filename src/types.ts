@@ -24,6 +24,7 @@ export interface Item {
   platform: string | null; // game
   condition: string | null; // game: loose / cib / new (which copy you own)
   format: string | null; // movie: DVD / VHS / Blu-Ray / 4K Blu-Ray
+  genre: string | null;
   year: number | null;
   status: ItemStatus;
   rating: number | null; // 0-5
@@ -45,6 +46,7 @@ export type ItemDraft = Pick<
   | "platform"
   | "condition"
   | "format"
+  | "genre"
   | "year"
   | "status"
   | "rating"
@@ -165,3 +167,68 @@ export const PLATFORM_GROUPS: { label: string; options: string[] }[] = [
 ];
 
 export const PLATFORMS: string[] = PLATFORM_GROUPS.flatMap((g) => g.options);
+
+// Starter genre lists per type — adjust freely as you use the app.
+export const GENRES: Record<ItemType, string[]> = {
+  game: [
+    "Action",
+    "Adventure",
+    "RPG",
+    "Shooter",
+    "Platformer",
+    "Fighting",
+    "Puzzle",
+    "Racing",
+    "Sports",
+    "Strategy",
+    "Simulation",
+    "Survival Horror",
+    "Stealth",
+    "Rhythm",
+    "Sandbox",
+    "Metroidvania",
+    "Roguelike",
+    "MMO",
+    "Party",
+    "Visual Novel",
+  ],
+  movie: [
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Family",
+    "Fantasy",
+    "Horror",
+    "Musical",
+    "Mystery",
+    "Romance",
+    "Sci-Fi",
+    "Thriller",
+    "War",
+    "Western",
+  ],
+  book: [
+    "Fiction",
+    "Non-Fiction",
+    "Fantasy",
+    "Sci-Fi",
+    "Mystery",
+    "Thriller",
+    "Romance",
+    "Horror",
+    "Historical Fiction",
+    "Biography",
+    "Memoir",
+    "History",
+    "Self-Help",
+    "Poetry",
+    "Graphic Novel",
+    "Young Adult",
+    "Children's",
+    "Classics",
+  ],
+};

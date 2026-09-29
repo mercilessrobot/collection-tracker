@@ -159,6 +159,7 @@ function detailFields(item: Item): { label: string; value: string }[] {
       f.push({ label: item.type === "book" ? "Publisher" : "Label", value: item.publisher });
   }
   if (item.type === "movie" && item.format) f.push({ label: "Format", value: item.format });
+  if (item.genre) f.push({ label: "Genre", value: item.genre });
   if (item.year) f.push({ label: "Year", value: String(item.year) });
   if (item.type === "book" && item.identifier) f.push({ label: "ISBN", value: item.identifier });
   return f;

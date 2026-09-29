@@ -31,6 +31,7 @@ alter table public.items add column if not exists platform text;  -- game
 alter table public.items add column if not exists format text;    -- movie (DVD/VHS/Blu-Ray/4K Blu-Ray)
 alter table public.items add column if not exists condition text; -- game (loose/cib/new)
 alter table public.items add column if not exists market jsonb;   -- game market value (PriceCharting)
+alter table public.items add column if not exists genre text;     -- all types
 
 -- Row Level Security: every row is private to the user who created it.
 alter table public.items enable row level security;

@@ -57,6 +57,7 @@ export function ItemForm({
           .filter(Boolean)
       : []
   );
+  const [editingGenres, setEditingGenres] = useState(false);
   const [year, setYear] = useState(initial?.year?.toString() ?? "");
   const [status, setStatus] = useState<ItemStatus>(initial?.status ?? defaultStatus);
   const [rating, setRating] = useState(initial?.rating ?? 0);
@@ -324,18 +325,40 @@ export function ItemForm({
 
         <div className="field">
           <span className="field-label">Genre</span>
-          <div className="genre-chips">
-            {[...GENRES[type], ...genres.filter((g) => !GENRES[type].includes(g))].map((g) => (
+          {editingGenres ? (
+            <>
+              <div className="genre-chips">
+                {[...GENRES[type], ...genres.filter((g) => !GENRES[type].includes(g))].map((g) => (
+                  <button
+                    type="button"
+                    key={g}
+                    className={genres.includes(g) ? "chip selected" : "chip"}
+                    onClick={() => toggleGenre(g)}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+              <button type="button" className="link-btn" onClick={() => setEditingGenres(false)}>
+                Done
+              </button>
+            </>
+          ) : (
+            <div className="genre-chips">
+              {genres.map((g) => (
+                <span key={g} className="chip selected">
+                  {g}
+                </span>
+              ))}
               <button
                 type="button"
-                key={g}
-                className={genres.includes(g) ? "chip selected" : "chip"}
-                onClick={() => toggleGenre(g)}
+                className="chip chip-add"
+                onClick={() => setEditingGenres(true)}
               >
-                {g}
+                {genres.length ? "Edit genre" : "+ Add genre"}
               </button>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
 
         {type === "movie" && (

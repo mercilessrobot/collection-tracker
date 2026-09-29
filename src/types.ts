@@ -209,6 +209,8 @@ export const GENRES: Record<ItemType, string[]> = {
     "Folk Tale",
     "Giallo",
     "Horror",
+    "Body Horror",
+    "Gore",
     "Lovecraftian",
     "Monsters",
     "Slasher",

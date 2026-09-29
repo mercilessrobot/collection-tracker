@@ -24,7 +24,10 @@ export function Collection({ session }: { session: Session }) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeType, setActiveType] = useState<ItemType>("game");
+  const [activeType, setActiveType] = useState<ItemType>(() => {
+    const saved = localStorage.getItem("activeType");
+    return saved === "game" || saved === "movie" || saved === "book" ? saved : "game";
+  });
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Item | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -41,6 +44,11 @@ export function Collection({ session }: { session: Session }) {
   useEffect(() => {
     setFilterValue("");
     setGenreFilter("");
+  }, [activeType]);
+
+  // Remember the last-viewed category across refreshes.
+  useEffect(() => {
+    localStorage.setItem("activeType", activeType);
   }, [activeType]);
 
   async function loadItems() {

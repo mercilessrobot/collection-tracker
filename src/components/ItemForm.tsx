@@ -8,6 +8,7 @@ import {
   PLATFORM_GROUPS,
   PLATFORMS,
   GAME_CONDITIONS,
+  GENRES,
 } from "../types";
 import { lookupIsbn } from "../lib/openlibrary";
 import { LookupBox } from "./LookupBox";
@@ -48,6 +49,7 @@ export function ItemForm({
   const [platform, setPlatform] = useState(initial?.platform ?? "");
   const [format, setFormat] = useState(initial?.format ?? "");
   const [condition, setCondition] = useState(initial?.condition ?? "");
+  const [genre, setGenre] = useState(initial?.genre ?? "");
   const [year, setYear] = useState(initial?.year?.toString() ?? "");
   const [status, setStatus] = useState<ItemStatus>(initial?.status ?? defaultStatus);
   const [rating, setRating] = useState(initial?.rating ?? 0);
@@ -177,6 +179,7 @@ export function ItemForm({
       platform: platform.trim() || null,
       condition: type === "game" ? condition || null : null,
       format: format.trim() || null,
+      genre: genre || null,
       year: year ? Number(year) : null,
       status,
       rating: rating || null,
@@ -307,6 +310,19 @@ export function ItemForm({
             </label>
           </>
         )}
+
+        <label>
+          Genre
+          <select value={genre} onChange={(e) => setGenre(e.target.value)}>
+            <option value="">—</option>
+            {genre && !GENRES[type].includes(genre) && <option value={genre}>{genre}</option>}
+            {GENRES[type].map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+        </label>
 
         {type === "movie" && (
           <label>

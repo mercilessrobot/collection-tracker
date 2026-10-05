@@ -178,6 +178,43 @@ Then: the game form has a **Fetch value** button, opening a game's detail
 refreshes its value, and the **Values** checkbox (next to the platform filter)
 shows the value on each game card.
 
+## Optional: weekly automatic value refresh
+
+Refreshes every game's value on a schedule (in addition to the per-game refresh
+when you open its detail). Needs a third Edge Function plus a cron job.
+
+1. **Deploy the function** — Edge Functions → Deploy a new function → Via Editor
+   → name it **`refresh-values`** → paste
+   [`supabase/functions/refresh-values/index.ts`](supabase/functions/refresh-values/index.ts)
+   → Deploy. Then turn **off** "Enforce JWT verification" for it (it's protected
+   by its own secret instead).
+2. **Set its secret** — the function's **Secrets** → add `REFRESH_SECRET` = any
+   long random string (keep a copy for the next step).
+3. **Schedule it** — SQL Editor → run (paste your `REFRESH_SECRET`):
+
+   ```sql
+   create extension if not exists pg_cron;
+   create extension if not exists pg_net;
+
+   select cron.schedule(
+     'refresh-game-values',
+     '1 5 * * 0',  -- Sunday 05:01 UTC = 12:01 AM EST
+     $$
+     select net.http_post(
+       url := 'https://rxssixlirkffgsimzuej.supabase.co/functions/v1/refresh-values',
+       headers := jsonb_build_object(
+         'x-refresh-secret', 'YOUR_REFRESH_SECRET',
+         'Content-Type', 'application/json'
+       ),
+       timeout_milliseconds := 180000
+     );
+     $$
+   );
+   ```
+
+Games with a manual **custom value are skipped** (never overwritten). During
+daylight-saving months the run lands at 1:01 AM ET.
+
 ## Ideas for later
 
 - Offline support (service worker).

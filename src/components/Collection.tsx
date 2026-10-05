@@ -217,8 +217,9 @@ export function Collection({ session }: { session: Session }) {
   async function refreshValue(item: Item): Promise<Market | null> {
     if (item.type !== "game") return null;
     if (item.market?.custom != null) return null; // manual value set — skip PriceCharting
+    const pinnedUrl = item.market?.pinnedUrl ?? null;
     try {
-      const m = await fetchGameValue(item.title, item.platform);
+      const m = { ...(await fetchGameValue(item.title, item.platform, pinnedUrl)), pinnedUrl };
       const { error } = await supabase
         .from("items")
         .update({ market: m, updated_at: new Date().toISOString() })

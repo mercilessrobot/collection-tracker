@@ -3,9 +3,15 @@ import type { Market } from "../types";
 
 // Fetch a game's market value via the `price` Supabase Edge Function
 // (which scrapes PriceCharting server-side). Prices come back in cents.
-export async function fetchGameValue(title: string, platform: string | null): Promise<Market> {
+// If pinnedUrl is a PriceCharting product URL, that page is scraped directly
+// instead of searching by title/platform.
+export async function fetchGameValue(
+  title: string,
+  platform: string | null,
+  pinnedUrl?: string | null
+): Promise<Market> {
   const { data, error } = await supabase.functions.invoke("price", {
-    body: { title, platform: platform ?? "" },
+    body: { title, platform: platform ?? "", url: pinnedUrl ?? "" },
   });
   if (error) {
     throw new Error("Value lookup isn't available yet — deploy the 'price' Edge Function (see README).");
@@ -27,6 +33,7 @@ export async function fetchGameValue(title: string, platform: string | null): Pr
     url: d.url ?? null,
     matchedTitle: d.matchedTitle ?? null,
     matchedConsole: d.matchedConsole ?? null,
+    pinnedUrl: pinnedUrl ?? null,
     updatedAt: new Date().toISOString(),
   };
 }

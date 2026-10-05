@@ -1,7 +1,8 @@
-// Supabase Edge Function: look up a game's market value from PriceCharting's
-// public search page. Runs server-side because their site doesn't allow browser
-// (CORS) calls. Intended for personal, low-volume use (one request when you add
-// or edit a game). Deploy separately — see the README.
+// Supabase Edge Function: look up a game's market value from PriceCharting.
+// If a product `url` is given, that exact product page is scraped (so you can
+// pin an obscure/mismatched game to the correct listing). Otherwise it searches
+// by title + platform and takes the first result. Runs server-side (CORS).
+// Deploy separately — see the README. Personal, low-volume use.
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,17 +17,49 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const url = new URL(req.url);
-    let title = url.searchParams.get("title") ?? "";
-    let platform = url.searchParams.get("platform") ?? "";
+    const reqUrl = new URL(req.url);
+    let title = reqUrl.searchParams.get("title") ?? "";
+    let platform = reqUrl.searchParams.get("platform") ?? "";
+    let productUrl = reqUrl.searchParams.get("url") ?? "";
     if (req.method === "POST") {
       const body = await req.json().catch(() => ({}));
       title = (body?.title ?? title).toString();
       platform = (body?.platform ?? platform ?? "").toString();
+      productUrl = (body?.url ?? productUrl ?? "").toString();
     }
 
+    // 1) Pinned product URL wins — scrape that page directly.
+    if (/^https?:\/\/(www\.)?pricecharting\.com\/game\//i.test(productUrl.trim())) {
+      const url = productUrl.trim();
+      const res = await fetch(url, { headers: { "User-Agent": UA } });
+      if (!res.ok) return json({ found: false, error: `PriceCharting request failed (${res.status}).` });
+      const html = await res.text();
+      const price = (id: string): number | null => {
+        const m = html.match(
+          new RegExp('id="' + id + '"[^>]*>\\s*<span[^>]*>\\s*\\$?([0-9,]+\\.[0-9]{2})', "i")
+        );
+        return m ? Math.round(parseFloat(m[1].replace(/,/g, "")) * 100) : null;
+      };
+      const loose = price("used_price");
+      const cib = price("complete_price");
+      const newp = price("new_price");
+      if (loose == null && cib == null && newp == null) return json({ found: false });
+      const h1 = html.match(/<h1[^>]*>([^<]+)</i);
+      const slug = url.match(/\/game\/([a-z0-9-]+)\//i);
+      return json({
+        found: true,
+        loose,
+        cib,
+        new: newp,
+        matchedTitle: h1 ? h1[1].trim() : null,
+        matchedConsole: slug ? prettify(slug[1]) : null,
+        url,
+      });
+    }
+
+    // 2) Otherwise, search by title + platform.
     const q = [title, platform].filter(Boolean).join(" ").trim();
-    if (!q) return json({ error: "Missing 'title'." }, 400);
+    if (!q) return json({ error: "Missing 'title' or 'url'." }, 400);
 
     const searchUrl = `https://www.pricecharting.com/search-products?q=${encodeURIComponent(q)}&type=prices`;
     const res = await fetch(searchUrl, { headers: { "User-Agent": UA } });
@@ -35,8 +68,7 @@ Deno.serve(async (req) => {
     const html = await res.text();
     const rowStart = html.indexOf('<tr id="product-');
     if (rowStart === -1) return json({ found: false });
-    const rowEnd = html.indexOf("</tr>", rowStart);
-    const row = html.slice(rowStart, rowEnd);
+    const row = html.slice(rowStart, html.indexOf("</tr>", rowStart));
 
     const price = (cls: string): number | null => {
       const m = row.match(
@@ -61,6 +93,13 @@ Deno.serve(async (req) => {
     return json({ found: false, error: String(e) });
   }
 });
+
+function prettify(slug: string): string {
+  return slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
 function json(obj: unknown, status = 200): Response {
   return new Response(JSON.stringify(obj), {

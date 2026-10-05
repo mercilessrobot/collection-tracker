@@ -76,6 +76,7 @@ export function ItemForm({
   const [valueError, setValueError] = useState<string | null>(null);
   const [useCustom, setUseCustom] = useState(initial?.market?.custom != null);
   const [customValue, setCustomValue] = useState(centsToDollars(initial?.market?.custom));
+  const [pcUrl, setPcUrl] = useState(initial?.market?.pinnedUrl ?? "");
 
   const [isbn, setIsbn] = useState("");
   const [lookupBusy, setLookupBusy] = useState(false);
@@ -137,7 +138,7 @@ export function ItemForm({
     setValueBusy(true);
     setValueError(null);
     try {
-      setMarket(await fetchGameValue(title.trim(), platform || null));
+      setMarket(await fetchGameValue(title.trim(), platform || null, pcUrl.trim() || null));
     } catch (e) {
       setValueError(e instanceof Error ? e.message : "Value lookup failed.");
     } finally {
@@ -167,7 +168,8 @@ export function ItemForm({
     let marketToSave: Market | null = null;
     if (type === "game") {
       const customCents = useCustom ? dollarsToCents(customValue) : null;
-      if (customCents != null) {
+      const pinnedUrl = pcUrl.trim() || null;
+      if (market || customCents != null || pinnedUrl) {
         marketToSave = {
           loose: market?.loose ?? null,
           cib: market?.cib ?? null,
@@ -176,10 +178,9 @@ export function ItemForm({
           matchedTitle: market?.matchedTitle ?? null,
           matchedConsole: market?.matchedConsole ?? null,
           custom: customCents,
+          pinnedUrl,
           updatedAt: new Date().toISOString(),
         };
-      } else if (market) {
-        marketToSave = { ...market, custom: null };
       }
     }
 
@@ -519,6 +520,16 @@ export function ItemForm({
                     {market.matchedConsole ? ` (${market.matchedConsole})` : ""}
                   </p>
                 )}
+                <label className="pc-url">
+                  PriceCharting URL (optional — overrides the search)
+                  <input
+                    type="url"
+                    inputMode="url"
+                    placeholder="https://www.pricecharting.com/game/…"
+                    value={pcUrl}
+                    onChange={(e) => setPcUrl(e.target.value)}
+                  />
+                </label>
                 <button type="button" className="link-btn" onClick={() => setUseCustom(true)}>
                   Custom value
                 </button>

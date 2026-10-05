@@ -11,6 +11,7 @@ export interface Market {
   matchedTitle?: string | null;
   matchedConsole?: string | null;
   custom?: number | null; // manual override (cents); when set, no PriceCharting fetch
+  pinnedUrl?: string | null; // exact PriceCharting product URL to scrape instead of searching
   updatedAt: string;
 }
 

@@ -430,6 +430,9 @@ label {
 .value-prefix {
   color: var(--muted);
 }
+.pc-url {
+  margin-top: 0.5rem;
+}
 .custom-value-input {
   margin-top: 0;
   width: 8rem;

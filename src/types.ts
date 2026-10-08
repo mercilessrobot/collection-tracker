@@ -156,7 +156,7 @@ export const PLATFORM_GROUPS: { label: string; options: string[] }[] = [
       "Mac",
       "Arcade",
       "Neo Geo",
-      "Neo Geo Pocket",
+      "Neo Geo Pocket Color",
       "TurboGrafx-16",
       "3DO",
       "Intellivision",
